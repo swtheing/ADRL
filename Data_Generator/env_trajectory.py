@@ -15,8 +15,8 @@ from env_trj.state_generator import *
 class env_trajectory(env):
     def __init__(self, name, config):
         env.__init__(self, name)
-        #self.env = gym.make(name)
-        # load data
+        self.config = config
+        self.step_num = 0
         self.data_loader = DataLoader(
             config.task_data_path,config.trajectory_data_path)
         self.data_loader.get_merge_task(config.aim_day_num) # 读取yellow 数据
@@ -54,14 +54,18 @@ class env_trajectory(env):
         self.data_loader.get_trajectories() # 读取uber数据
         print "trajectory size: %d" % len(self.data_loader.trajectory_data)
 
-    def reset(self, config): # 重新采样
+    def reset(self): # 重新采样
+        config = self.config
+        self.step_num = 0
         self.simulator.trajector.init_sampling(self.data_loader.trajectory_data, config.trajector_sampling_size)  # 采样生成路线数据
         self.ave_speed = self.simulator.trajector.set_ave_speed(config.default_ave_speed)
         print "ave speed: %s" % self.ave_speed
         print "task sampling"
         self.episode_task_num = config.episode_task_num
         self.task_samples = self.task_generator.task_generation(self.episode_task_num)
-        preprocess(config)
+        self.preprocess(config)
+        self.simulator.output_state(config.log_file_path, 0)
+        print "reset done"
         return self.simulator
 
     def task_sampling(self):
@@ -81,10 +85,16 @@ class env_trajectory(env):
         #print "step:0, task_num:%s" % len(task_samples)
         self.simulator.update_state(self.task_samples, [])
 
-    def step(self, action, config, step_num):
+    def step(self, action):
+        config = self.config
+        self.step_num += 1
         actions = [action]
         self.simulator.update_state(self.task_samples, actions)
-        self.simulator.output_state(config.log_file_path, step_num)
+        self.simulator.output_state(config.log_file_path, self.step_num)
         self.task_sampling()
-        return self.simulator, self.simulator.reward
+        done = False
+        if self.step_num == config.max_step:
+            done = True
+        info = None
+        return self.simulator, self.simulator.reward, done, info
 

@@ -9,7 +9,9 @@ class Greedy():
         self.env = env
 
     def run_test(self, config):
-        for i in range(1, 20):
+        total_reward = 0.0
+        total_episode = 0
+        for i in range(0, 20):
             # greedy choose, every step chose one
             for taskid in self.env.simulator.pending_schedules:
                 t_start_pos = self.env.simulator.pending_schedules[taskid][3][0:2]
@@ -25,14 +27,13 @@ class Greedy():
                 action_task = taskid
                 break
             action = ["pick", action_pid, action_task]
-            self.env.step(action, config, i)
-
-
-
-
-
-
-
-
+            observation, reward, done, info = self.env.step(action)
+            if done:
+                self.env.reset()
+                total_episode += 1
+                total_reward += reward
+                print "episode: %d, reward: %s" % (total_episode, reward)
+        ave_reward = total_reward / total_episode
+        print "ave_reward: %s" % ave_reward
 
 

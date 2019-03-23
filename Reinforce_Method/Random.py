@@ -17,7 +17,9 @@ class Random():
         self.env = env
 
     def run_test(self, config):
-        for i in range(1, 20):
+        total_reward = 0.0
+        total_episode = 0
+        for i in range(0, 20):
             # random
             for pid in self.env.simulator.participants:
                 if self.env.simulator.participants[pid][1] == ParticipantState["available"]:
@@ -27,7 +29,14 @@ class Random():
                 action_task = taskid
                 break
             action = ["pick", action_pid, action_task]
-            self.env.step(action, config, i)
+            observation, reward, done, info = self.env.step(action)
+            if done:
+                self.env.reset()
+                total_episode += 1
+                total_reward += reward
+                print "episode: %d, reward: %s" % (total_episode, reward)
+        ave_reward = total_reward / total_episode
+        print "ave_reward: %s" % ave_reward
 
 
 

@@ -24,6 +24,7 @@ class Random_config(object):
     aim_day_num = 1
     trajector_sampling_size = 100
     default_ave_speed = 0.00005
+    max_step = 5
     episode_task_num = 40
     participant_num = 5
     log_file_path = "output/random.state.log"
@@ -32,6 +33,7 @@ class Greedy_config(object):
     task_data_path = "Data_Generator/env_trj/data/tasks"
     trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
     aim_day_num = 1
+    max_step = 5
     trajector_sampling_size = 100
     default_ave_speed = 0.00005
     episode_task_num = 40
