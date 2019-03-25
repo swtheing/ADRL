@@ -14,10 +14,10 @@ if __name__ == "__main__":
         game = "random_trj"
         env = env_trajectory(game, config)
         rand = Random(config, game, env)
-        rand.run_test(config)
+        rand.run_test(config, 30)
     elif sys.argv[1] == "GREEDY":
         config = Greedy_config()
         game = "greedy_trj"
         env = env_trajectory(game, config)
         greedy = Greedy(config, game, env)
-        greedy.run_test(config)
+        greedy.run_test(config, 30)

@@ -97,7 +97,7 @@ class Trajectory():
         if move_dis > distance:
             # finish
             return target_pos, 0.0, distance
-        if x2 != x1:
+        if x2 != x1 and y2 != y1:
             k = (y2 - y1) / (x2 - x1)
             b = y1 - (k * x1)
             theta = math.atan(abs(x1 - x2) / abs(y1 - y2))
@@ -107,6 +107,12 @@ class Trajectory():
             else:
                 y3 = y1 + delta_y
             x3 = (y3 - b) / k
+        elif: x2 != x1 and y2 == y1:
+            y3 = y1
+            if x2 > x1:
+                x3 = x1 + move_dis
+            else:
+                x3 = x1 - move_dis
         else:
             delta_y = move_dis
             if y1 <= y1 - delta_y <= y2:
