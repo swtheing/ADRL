@@ -4,7 +4,7 @@
 import os
 import codecs
 from enum import Enum
-import random
+mport random
 import math
 from math import radians, cos, sin, asin, sqrt
 
@@ -107,7 +107,7 @@ class Trajectory():
             else:
                 y3 = y1 + delta_y
             x3 = (y3 - b) / k
-        elif: x2 != x1 and y2 == y1:
+        elif x2 != x1 and y2 == y1:
             y3 = y1
             if x2 > x1:
                 x3 = x1 + move_dis
