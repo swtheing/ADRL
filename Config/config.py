@@ -18,27 +18,50 @@ class DPS_config(object):
     dis_epi = 0.01
     pre = True
 
+
 class Random_config(object):
-    task_data_path = "Data_Generator/env_trj/data/tasks"
-    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
+    # default
     aim_day_num = 1
     trajector_sampling_size = 100
-    default_ave_speed = 0.00005
-    max_step = 5
+    default_ave_speed = 0.04 # 40 / 85.176 / 3600 * 300 
+    max_step = 10
     episode_task_num = 40
-    participant_num = 5
+    participant_num = 20
+
+    # distribution
+    env_var = True
+    poisson_lamda = 6
+    poisson_episode_num = 40
+    normal_mu = 0
+    normal_sigma = 0.1
+    normal_episode_num = 5
+
     log_file_path = "output/random.state.log"
+    task_data_path = "Data_Generator/env_trj/data/tasks"
+    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
+    
 
 class Greedy_config(object):
+    # default
+    aim_day_num = 1
+    max_step = 10
+    trajector_sampling_size = 100
+    default_ave_speed = 0.04 # 40 / 85.176 / 3600 * 300 
+    episode_task_num = 40
+    participant_num = 20
+
+    # prob
+    env_var = True
+    poisson_lamda = 6
+    poisson_episode_num = 40
+    normal_mu = 0
+    normal_sigma = 0.1
+    normal_episode_num = 5
+
     task_data_path = "Data_Generator/env_trj/data/tasks"
     trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
-    aim_day_num = 1
-    max_step = 5
-    trajector_sampling_size = 100
-    default_ave_speed = 0.00005
-    episode_task_num = 40
-    participant_num = 5
     log_file_path = "output/greedy.state.log"
+
 
 class P_config(object):
     epoch = 1000000

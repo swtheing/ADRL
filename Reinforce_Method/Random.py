@@ -20,15 +20,29 @@ class Random():
         observation = self.env.reset()
         for i in range(total_step):
             # random
-            for pid in observation.participants:
-                if observation.participants[pid][1] == ParticipantState["available"]:
-                    action_pid = pid
-                    break
+            action_taskid = -1
+            action_pid = -1
+            cur_pid_set = set()
+            cur_task_set = set()
+            actions = []
             for taskid in observation.pending_schedules:
-                action_task = taskid
-                break
-            action = ["pick", action_pid, action_task]
-            new_observation, reward, done, info = self.env.step(action)
+                pick_flag = 0
+                if taskid in cur_task_set:
+                    continue
+                action_taskid = taskid
+                for pid in observation.participants:
+                    if (pid not in cur_pid_set) and observation.participants[pid][1] == ParticipantState["available"]:
+                        action_pid = pid
+                        pick_flag = 1
+                        break
+                if pick_flag == 0:
+                    continue
+                cur_pid_set.add(action_pid)
+                cur_task_set.add(action_taskid)
+                action = ["pick", action_pid, action_taskid]
+                print action
+                actions.append(action)
+            new_observation, reward, done, info = self.env.step(actions)
             observation = new_observation
             if done:
                 total_episode += 1

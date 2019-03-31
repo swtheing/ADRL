@@ -4,10 +4,10 @@
 import os
 import codecs
 from enum import Enum
-mport random
+import random
 import math
 from math import radians, cos, sin, asin, sqrt
-
+import numpy as np
 
 class TaskState(Enum):
     pending = 0
@@ -26,6 +26,7 @@ class Trajectory():
     def __init__(self):
         self.trajectories = []
         self.ave_speed = 0.0
+        self.speed_normal_distribution = []
 
     def init_sampling(self, trajectory_data, sampling_size=10000):
         """
@@ -36,6 +37,21 @@ class Trajectory():
 
     def get_distance(self, x1, y1, x2, y2):
         return pow((pow((x1 - x2), 2) + pow((y1 - y2), 2)), 0.5)
+
+    def speed_tuner_init(self, mu, sigma, total_size):
+        speed_normal_list = sorted(np.random.normal(mu, sigma, total_size))
+        self.speed_normal_distribution = speed_normal_list
+        for s in reversed(speed_normal_list):
+            self.speed_normal_distribution.append(s)
+        print self.speed_normal_distribution
+
+    def speed_tuner(self, ave_speed_base, step_num):
+        speed_index = step_num % len(self.speed_normal_distribution)
+        speed_tuner = self.speed_normal_distribution[speed_index]
+        if speed_tuner < -0.99:
+            speed_tuner = -0.99
+        self.ave_speed = (1 + speed_tuner) * ave_speed_base
+        return self.ave_speed
 
     def set_ave_speed(self, trajectory_data, sampling_size=1000):
         sum_distance = 0.0
@@ -54,10 +70,6 @@ class Trajectory():
 
             start_x, start_y = trajectory_data[i][2]
             end_x, end_y = trajectory_data[i + 1][2]
-            # print start_x
-            # print start_y
-            # print end_x
-            # print end_y
             distance = self.get_distance(start_x, start_y, end_x, end_y)
             sum_distance += distance
         # print sum_duration
@@ -126,7 +138,7 @@ class Trajectory():
 
 class StateSimulator():
     def __init__(self):
-        self.task_key_gen = 0
+        self.task_key_gen = -1
         self.running_schedules = dict()
         self.pending_schedules = dict()
         self.finished_schedules = dict()
@@ -232,7 +244,7 @@ class StateSimulator():
                 self.running_schedules[t_id][1] = TaskState["picking"]  #update state
                 self.running_schedules[t_id][2] = p_id                  #update participant_id
                 self.pending_schedules.pop(t_id)
-        self.reward_distance()
+        self.reward_compute()
 
     def update_new_tasks(self, new_tasks):
         """
@@ -243,8 +255,8 @@ class StateSimulator():
           position, (start_x, end_x, start_y, end_y)
           passenger_num, distance, fare_amount]] 
         """
-        self.task_key_gen += 1
         for task_data in new_tasks:
+            self.task_key_gen += 1
             task_id = "task%d" % self.task_key_gen                  #id[0]
             state = TaskState["pending"]                            #state[1]
             participant_id = -1                                     #pid[2]
@@ -263,18 +275,23 @@ class StateSimulator():
                     recruiter_num, distance, fare_amount, reward_state, real_dis]
             self.pending_schedules[task_id] = task
 
-    def reward_distance(self):
+    def reward_compute(self):
         # finished 
+        # reward = finish_num + pos_distance * 3 - neg_distance - waiting_time
         for task_id in self.finished_schedules:
             task = self.finished_schedules[task_id]
             if task[9] == 0:
-                self.reward += task[10] * 3.0  #1.0抵消成本，2.0计算reward
+                self.reward += task[10] * 3.0  #-1.0抵消成本，+3.0计算reward
                 self.finished_schedules[task_id][9] = 1
+            self.reward += 0.04
         for pid in self.participants:
             state = self.participants[pid][1]
             cur_cost_dis = self.participants[pid]
             if state == ParticipantState["working"]:
-                self.reward -= self.participants[pid][7]
+                self.reward -= self.participants[pid][7]  #1.0抵消成本
+        for tid in self.pending_schedules:
+            self.reward -= 0.02
+        return self.reward
 
     def output_state(self, log_path, step=0):
         log_file = codecs.open(log_path, "a", "utf8")

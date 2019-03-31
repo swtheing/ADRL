@@ -14,21 +14,35 @@ class Greedy():
         observation = self.env.reset()
         for i in range(total_step):
             # greedy choose, every step chose one
+            action_taskid = -1
+            action_pid = -1
+            cur_pid_set = set()
+            cur_task_set = set()
+            actions = []
             for taskid in observation.pending_schedules:
+                pick_flag = 0
+                if taskid in cur_task_set:
+                    continue
                 t_start_pos = observation.pending_schedules[taskid][3][0:2]
+                action_taskid = taskid
                 min_dis = -1.0
                 for pid in observation.participants:
-                    if observation.participants[pid][1] == ParticipantState["available"]:
+                    if (pid not in cur_pid_set) and observation.participants[pid][1] == ParticipantState["available"]:
                         p_start_pos = observation.participants[pid][3]
                         distance = observation.trajector.get_distance( \
                             t_start_pos[0], t_start_pos[1], p_start_pos[0], p_start_pos[1])
                         if distance < min_dis or min_dis < 0:
                             action_pid = pid
                             min_dis = distance
-                action_task = taskid
-                break
-            action = ["pick", action_pid, action_task]
-            new_observation, reward, done, info = self.env.step(action)
+                            pick_flag = 1
+                if pick_flag == 0:
+                    continue
+                cur_pid_set.add(action_pid)
+                cur_task_set.add(action_taskid)
+                action = ["pick", action_pid, action_taskid]
+                print action
+                actions.append(action)
+            new_observation, reward, done, info = self.env.step(actions)
             observation = new_observation
             if done:
                 total_episode += 1
