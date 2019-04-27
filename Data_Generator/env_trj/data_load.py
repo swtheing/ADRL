@@ -3,6 +3,7 @@
 
 import os
 import codecs
+import numpy as np
 
 class DataLoader():
     def __init__(self):
@@ -31,11 +32,28 @@ class DataLoader():
         del self.raw_data
         self.raw_data = []
 
+    def normalization(self, raw_data):
+        mu = np.mean(raw_data)
+        sigma = np.std(raw_data)
+        new_data = (raw_data - mu) / sigma
+        #print new_data
+        return new_data
+
+    def position_norm(self, positon_array):
+        pos_norm = []
+        array = np.array(positon_array)
+        x1 = self.normalization(array[:,0]).tolist()
+        y1 = self.normalization(array[:,1]).tolist()
+        x2 = self.normalization(array[:,2]).tolist()
+        y2 = self.normalization(array[:,3]).tolist()
+        for i in range(len(x1)):
+            pos_norm.append([x1[i], y1[i], x2[i], y2[i]])
+        return pos_norm
+
     def get_merge_task(self, aim_day_num):
         """
         把当前全部task数据压缩至aim_day_num天并返回
         """
-        self.load_task_static(self.task_data_path)
         self.merge_data(aim_day_num)
 
     def get_trajectories(self):
@@ -88,10 +106,11 @@ class DataLoader():
                      + hour * 3600 + minute * 60 + second
         return [year, month, day, hour, minute, second, unix_time, time_str]
 
-    def load_task_static(self, tasks_dir):
+    def load_task_static(self):
         """
         load raw task data
         """
+        tasks_dir = self.task_data_path
         files= os.listdir(tasks_dir)
         for file in files:
             if "trip" not in file:
@@ -205,4 +224,43 @@ class DataLoader():
                 except Exception as e:
                     print "[Data error]: %s, %s" % (e, line)
             file.close()
+
+    def overall_position_normalization(self):
+        task_num = len(self.raw_data)
+        par_num = len(self.trajectory_data)
+        pos_task = [t[1] for t in self.raw_data]
+        pos_par = [p[2] for p in self.trajectory_data]
+        """
+        pos_task:[x1,y1,x2,y2]
+        pos_par: [x1,y1]
+        """
+        pos_x = [t[0] for t in pos_task]
+        pos_x += [t[2] for t in pos_task]
+        pos_x += [p[0] for p in pos_par]
+
+        pos_y = [t[1] for t in pos_task]
+        pos_y += [t[3] for t in pos_task]
+        pos_y += [p[1] for p in pos_par]
+
+        assert(len(pos_x) == len(pos_y))
+        norm_x = self.normalization(pos_x)
+        norm_y = self.normalization(pos_y)
+        task_length = len(pos_task)
+        task_x1 = norm_x[0 : task_length]
+        task_y1 = norm_y[0 : task_length]
+        task_x2 = norm_x[task_length : task_length*2]
+        task_y2 = norm_y[task_length : task_length*2]
+        par_x = norm_x[task_length*2:]
+        par_y = norm_y[task_length*2:]
+        assert(len(par_x) == len(pos_par))
+
+        for i in range(len(self.raw_data)):
+            pos = [float(task_x1[i]), float(task_y1[i]), float(task_x2[i]), float(task_y2[i])]
+            self.raw_data[i][1] = pos
+        for i in range(len(self.trajectory_data)):
+            pos = [float(par_x[i]), float(par_y[i])]
+            self.trajectory_data[i][2] = pos
+
+
+
 

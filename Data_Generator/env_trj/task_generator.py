@@ -18,6 +18,21 @@ class TaskGenerator():
     def set_poisson_distribution(self, lamda, episode_task_num):
         self.pisson_distribution = np.random.poisson(lamda, episode_task_num)
 
+    def task_sampling_default(self, episode_task_num=10000):
+        self.step_counter += 1
+        if self.step_counter >= len(self.time_list):
+            self.step_counter = 0
+        key_t = self.time_list[self.step_counter] # 时间段
+        task_samples_num = episode_task_num
+        task_samples =[]
+        counter = 0
+        for task in self.task_candidates[key_t]:
+            counter += 1
+            task_samples.append(task)
+            if counter == task_samples_num:
+                break
+        return task_samples
+
     def task_sampling_random(self, episode_task_num=10000):
         self.step_counter += 1
         if self.step_counter >= len(self.time_list):
