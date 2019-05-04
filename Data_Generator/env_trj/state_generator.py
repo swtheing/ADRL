@@ -150,8 +150,13 @@ class StateSimulator():
         self.participants = dict()
         self.trajector = Trajectory()
         self.new_task_list = []
+        self.pending_time = 0
+        self.total_fare_amount = 0
+        self.task_pending_time = dict()
+        self.participant_fare = dict()
         self.reward = 0.0
         self.final_reward = 0.0
+        self.finished_task_num = 0
         self.pending_actions = []
         self.new_feature = []
         self.exe_actions = []
@@ -163,6 +168,11 @@ class StateSimulator():
         self.finished_schedules = dict()
         self.participants = dict()
         self.reward = 0.0
+        self.pending_time = 0
+        self.total_fare_amount = 0
+        self.task_pending_time = dict()
+        self.participant_fare = dict()
+        self.finished_task_num = 0
         self.final_reward = 0.0
         self.new_task_list = []
         self.pending_actions = []
@@ -264,7 +274,6 @@ class StateSimulator():
         后执行new actions
         根据未执行的action生成pending actions
         """
-        print "## exe actions:"
         tmp_actions = []
         for action in self.pending_actions:
             if not self.execution(action):
@@ -273,19 +282,15 @@ class StateSimulator():
             if not self.execution(action):
                 tmp_actions.append(action)
         self.pending_actions = tmp_actions
-        print "## pending:",
-        print tmp_actions
         self.reward_compute()
 
     def execution(self, action):
         action_name, p_id, t_id = action
-        print "##  %s" % action
         if p_id in self.participants \
                 and t_id in self.pending_schedules \
                 and self.participants[p_id][1] == ParticipantState["available"] \
                 and self.pending_schedules[t_id][1] == TaskState["pending"]:
             self.exe_actions.append(action)
-            print "##  %s" % self.participants[p_id][1],
             # update participant
             p_id, state, p_task_id, \
                 cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed = self.participants[p_id]
@@ -295,7 +300,6 @@ class StateSimulator():
             remain_distance = self.trajector.get_distance(cur_pos[0], cur_pos[1], target_pos[0], target_pos[1])
             self.participants[p_id] = [p_id, state, t_id, \
                 cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed]
-            print "##  %s" % self.participants[p_id][1]
             # update task
             self.running_schedules[t_id] = self.pending_schedules[t_id]
             self.running_schedules[t_id][1] = TaskState["picking"]  #update state
@@ -306,24 +310,35 @@ class StateSimulator():
 
     def reward_compute(self):
         # one step reward, no pending task
-        # reward = finish_num + pos_distance * 3 - neg_distance - waiting_time
-        print "## reward computing:",
+        # reward = finish_num + pos_distance * 5 - neg_distance - waiting_time
+        # print "rewarding..."
         for task_id in self.finished_schedules:
             task = self.finished_schedules[task_id]
-            if task[9] == 0:
-                self.reward += task[10] * 5.0  #-1.0抵消成本，+3.0计算reward
-                print "+%f\t" % (task[10] * 5.0),
-                self.finished_schedules[task_id][9] = 1
+            pid = task[2]
+            if task[9] == 0: # not count yet
+                fare_amount = task[10]
+                self.reward += fare_amount * 5.0  #-1.0抵消成本，+3.0计算reward
+                self.finished_task_num += 1
+                self.total_fare_amount += fare_amount
+                self.finished_schedules[task_id][9] = 1 # counted
+                if pid in self.participant_fare:
+                    self.participant_fare[pid] += fare_amount
+                else:
+                    self.participant_fare[pid] = fare_amount
         for pid in self.participants:
             state = self.participants[pid][1]
             cur_cost_dis = self.participants[pid]
             if state == ParticipantState["working"]:
                 self.reward -= self.participants[pid][7]  #1.0抵消成本
-                print "-%s\t" % self.participants[pid][7],
+        TIME_SPEND_UNIT = 0.01
         for tid in self.pending_schedules:
-            self.reward -= 0.01
-            print "-%s\t" % "0.01",
-        print "\n## reward: %s" % self.reward
+            self.reward -= TIME_SPEND_UNIT
+            # print "-0.01\t",
+            self.pending_time += TIME_SPEND_UNIT
+            if tid in self.task_pending_time:
+                self.task_pending_time[tid] += TIME_SPEND_UNIT
+            else:
+                self.task_pending_time[tid] = TIME_SPEND_UNIT
         return self.reward
 
     def update_new_tasks(self, new_tasks):

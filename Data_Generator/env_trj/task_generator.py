@@ -42,8 +42,10 @@ class TaskGenerator():
         task_samples = random.sample(self.task_candidates[key_t], task_samples_num) # 按照时间段分布抽样
         return task_samples
 
-    def task_sampling_poisson(self, step_num, episode_task_num):
+    def task_sampling_poisson(self, step_num, episode_task_num, max_task_size=100):
         task_samples_num = self.pisson_distribution[step_num % episode_task_num]
+        if task_samples_num > max_task_size:
+            task_samples_num = max_task_size
         task_samples = random.sample(self.total_task_list, task_samples_num) # 按照poisson分布抽样
         return task_samples
 
