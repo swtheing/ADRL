@@ -19,7 +19,6 @@ We got two generators in the environment simulator combining real datasets to st
 ![](https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/DRLArch03.png)
 -->
 
-
 <br/></br>
 ### 3. Dataset
 We got the raw dataset from this post: [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance.][1]  
@@ -31,3 +30,5 @@ We got the raw dataset from this post: [Analyzing 1.1 Billion NYC Taxi and Uber 
 [1]: https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/  
 [2]: https://github.com/toddwschneider/nyc-taxi-data
 
+Only part of the raw data is used in our demo.
+![](https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png)
