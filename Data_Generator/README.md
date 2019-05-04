@@ -13,6 +13,8 @@ The participant selection problem in mobile Crowdsensing has been proved to be a
 ### 2. Trajectory Environment
 We got two generators in the environment simulator combining real datasets to stimulate the participant selection process, with a Trajectory Manager, in charge of the management of participants and tasks. A policy algorithm gets all the features of participants and tasks from the States Simulator who synchronizes the system parameters and updates the whole state of the environment continuously and returns a list of appropriate actions which are run by the Action Processor. All the feedback rewards are evaluated by the Reward Computing module.
 
+![](https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/DRLArch03.png)
+
 <br/></br>
 ### 3. Dataset
 We got the raw dataset from this post: [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance.][1]  
