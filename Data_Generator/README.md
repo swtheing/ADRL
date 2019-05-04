@@ -15,10 +15,8 @@ We got two generators in the environment simulator combining real datasets to st
 
 <img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/DRLArch03.png" width = "600" height = "400" align=center />
 
+//![](https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/DRLArch03.png)
 
-```
-![](https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/DRLArch03.png)
-```
 
 <br/></br>
 ### 3. Dataset
