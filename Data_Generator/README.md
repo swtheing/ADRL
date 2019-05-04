@@ -31,4 +31,4 @@ We got the raw dataset from this post: [Analyzing 1.1 Billion NYC Taxi and Uber 
 [2]: https://github.com/toddwschneider/nyc-taxi-data
 
 Only part of the raw data is used in our demo.
-<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png" width = "280" height = "320"/></div>
+<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png" width = "280" height = "200"/></div>
