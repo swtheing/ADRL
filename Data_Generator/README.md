@@ -5,7 +5,6 @@ An implementation of the environment of Deep Reinforcement Learning in specific 
 
 ## The Trajectory Environment
 A **trajectory environment** for **Mobile Crowdsensing Problem** solved by **DRL**. Including management of participants and tasks, feature extraction of trajectory factors, system state simulation and reward computing, etc.
-
 <br/></br>
 ### 1. Mobile Crowdsensing Problem and DRL
 
