@@ -1,5 +1,5 @@
-# The Environment of Deep-Reinforcement-Learning
-An implementation of the environment of DRL in specific field.
+# The Environment of DRL
+An implementation of the environment of Deep Reinforcement Learning in specific field.
 
 ## The Trajectory Environment
 A **trajectory environment** for **Mobile Crowdsensing Problem** solved by **DRL**. Including management of participants and tasks, feature extraction of trajectory factors, system state simulation and reward computing, etc.
@@ -14,3 +14,6 @@ The participant selection problem in mobile Crowdsensing has been proved to be a
 
 
 ### 3. Dataset
+Reference to:
+[1] https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/
+[2] https://github.com/toddwschneider/nyc-taxi-data
