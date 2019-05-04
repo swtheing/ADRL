@@ -14,6 +14,9 @@ The participant selection problem in mobile Crowdsensing has been proved to be a
 
 
 ### 3. Dataset
-Reference to:
+Reference to:Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance.
+
+"An open-source exploration of the city's neighborhoods, nightlife, airport traffic, and more, through the lens of publicly available taxi and Uber data."
+
 [1] https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/
 [2] https://github.com/toddwschneider/nyc-taxi-data
