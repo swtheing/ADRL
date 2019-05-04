@@ -22,7 +22,7 @@ From this post: [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance
 
 "An open-source exploration of the city's neighborhoods, nightlife, airport traffic, and more, through the lens of publicly available taxi and Uber data."
 
-GitHub link:https://github.com/toddwschneider/nyc-taxi-data
+GitHub link click here[2]
 
 [1]: https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/  
 [2]: https://github.com/toddwschneider/nyc-taxi-data
