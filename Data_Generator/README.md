@@ -11,6 +11,7 @@ With a massive deployment of mobile devices, crowdsourcing has become a new serv
 The participant selection problem in mobile Crowdsensing has been proved to be a NP-hard problem. We presents a multi-goal participant selection approach to iteratively update the participant selection policy via multi-task deep reinforcement learning.
 <br/></br>
 ### 2. Trajectory Environment
+We got two generators in the environment simulator combining real datasets to stimulate the participant selection process, with a Trajectory Manager, in charge of the management of participants and tasks. A policy algorithm gets all the features of participants and tasks from the States Simulator who synchronizes the system parameters and updates the whole state of the environment continuously and returns a list of appropriate actions which are run by the Action Processor. All the feedback rewards are evaluated by the Reward Computing module.
 
 <br/></br>
 ### 3. Dataset
