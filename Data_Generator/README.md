@@ -30,4 +30,4 @@ We got two generators in the environment simulator combining real datasets to st
 [2]: https://github.com/toddwschneider/nyc-taxi-data
 
 - Only part of the raw data is used in our demo.
-<div align=left><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png" width = "280" height = "160"/></div>
+<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png" width = "280" height = "160"/></div>
