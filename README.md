@@ -1,26 +1,61 @@
-# Deep-Reinforcement-Learning
-A Deep Reinforcement Learning Suite
+# Deep-Reinforcement-Learning Suite
+This is a description of an amazing Deep Reinforcement Learning Suite
 
-## The **DRL** Suite Overview
-<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/img/ReinforcementLearningMethod.png" width = "480" height = "320"/></div>
+## An Overview of The **DRL** Suite 
 
-As shown above in the diagram of Reinforcement Learning Method, we are working on the implementation of these DRL models. We are following the excellent research achievements from both industry and academic circles and more implementations will be continuously supplemented.
-<br/></br>
+In recent years, we are constantly working on the implementation of various Deep Reinforcement Learning Methods, following the excellent research achievements from both industry and academic circles as shown in the diagram below.<br></br>
 
-## Simple CodeTree for Reinforcement Suite
-- Reinforcement Suite
-  - Base
-  - "An open-source exploration of the city's neighborhoods, nightlife, airport traffic, and more, through the lens of publicly available taxi and Uber data."
+<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/img/ReinforcementLearningMethod.png" width = "1000" height = "360"/></div>
+<div align=center>An overview of Deep Reinforcement Learning Methods</div>
 
-<br/></br>
-### 3. Dataset
-- We got the raw dataset from this post: [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance.][1]  
-  - "An open-source exploration of the city's neighborhoods, nightlife, airport traffic, and more, through the lens of publicly available taxi and Uber data."
+<br></br>
+*We are applying ourself to developing an efficient, flexible and practical machine learning suite to share with Deep Learning researchers. Welcome to STAR, FORK or SHARE our code! More implementations of DRL Methods will be updated continuously!*
+<br></br>
 
-- [[GitHub link click here]][2]
+## A Brief CodeTree for Reinforcement Suite
 
-[1]: https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/  
-[2]: https://github.com/toddwschneider/nyc-taxi-data
+- Policy Interation
+  - Policy Evaluation
+    - Policy Settings
+    - Reward Achievement and getting Related Infomation
+    - Feature Achievement from a new episode
+    - Data Input
+  - Policy Improvement
+    - Generation of a new Policy 
+- Policy Base (comming for TensorFlow based version)
+  - Action Selection
+    - ε-Greedy
+    - Probability Based
+  - Policy Copy
+- Policy Methods (waiting for more)
+  - Deep Q-Learning
+  - Double DQN
+  - Monte-Carlo Q-Learning
+  - Monte-Carlo Policy Gradient
+  - Actor-Critic
+  - Direct Policy Search (DPS)
+- Data Generatior
+  - Environment Base
+     - Reset
+     - Step
+- Implementation of a Game
+  - Atari Like
+  - FrozenLake Like
+- Model
+  - Model base
+    - Training
+    - Testing
+    - Parameter Achievement
+    - Parameter Assignment
+    - Model Restore
+    - Model Save
+  - Model Implementation (waiting for more)
+    - MLP
+    - CNN
+    - Linear
+    - GAN
+    - AutoDecoder
+- Configuration
+  - Settings of hyper-parameters
 
-- Only part of the raw data is used in our demo.
-<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/Data_Generator/img/dataset-table.png" width = "280" height = "160"/></div>
+
