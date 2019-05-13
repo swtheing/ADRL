@@ -1,5 +1,5 @@
-# Deep-Reinforcement-Learning
-A Deep Reinforcement Learning Suite
+# Deep-Reinforcement-Learning Suite
+This is a description of an amazing Deep Reinforcement Learning Suite
 
 ## An Overview of The **DRL** Suite 
 
