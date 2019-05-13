@@ -3,9 +3,10 @@ A Deep Reinforcement Learning Suite
 
 ## The **DRL** Suite Overview
 
-As shown in the diagram of Reinforcement Learning Method, we are working on the implementation of these DRL models. We are following the excellent research achievements from both industry and academic circles and more implementations will be continuously supplemented.
+We are constantly working on the implementation of Deep Reinforcement Learning Method in recent years, following the excellent research achievements from both industry and academic circles as shown in the diagram below.<br>
+Welcome to STAR and FORK our code! More implementations of DRL Methods will be updated continuously.
 
-<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/img/ReinforcementLearningMethod.png" width = "1000" height = "400"/></div>
+<div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/img/ReinforcementLearningMethod.png" width = "1200" height = "400"/></div>
 <div align=center>An overview of Deep Reinforcement Learning Methods</div>
 
 </br>
