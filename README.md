@@ -16,16 +16,16 @@ In recent years, we are constantly working on the implementation of various Deep
 
 - Policy Interation
   - Policy Evaluation
-   - Policy Settings
-   - Getting reward and related infomation
-   - Feature achievement from a new episode
-   - Data Input
+    - Policy Settings
+    - Getting reward and related infomation
+    - Feature achievement from a new episode
+    - Data Input
   - Policy Improvement
-   - Generation of a new Policy 
+    - Generation of a new Policy 
 - Policy Base
   - Action Selection
-   - ε-Greedy
-   - Probability Based
+    - ε-Greedy
+    - Probability Based
   - Policy Copy
 - Policy Methods 
   - DQN
@@ -44,19 +44,19 @@ In recent years, we are constantly working on the implementation of various Deep
   - FrozenLake Like
 - Model
   - Model base
-   - Training
-   - Testing
-   - Getting parameters
-   - Assign
-   - Model Restore
-   - Model Save
+    - Training
+    - Testing
+    - Getting parameters
+    - Assign
+    - Model Restore
+    - Model Save
   - Model Implementation
-   - MLP
-   - CNN
-   - Linear
-   - GAN
-   - AutoDecoder
-   - Waiting More
+    - MLP
+    - CNN
+    - Linear
+    - GAN
+    - AutoDecoder
+    - Waiting More
 - Configuration
   - Settings of hyper-parameters
 
