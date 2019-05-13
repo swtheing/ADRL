@@ -24,7 +24,7 @@ In recent years, we are constantly working on the implementation of various Deep
       - Generation of a new Policy 
 - Policy Base
  - Action Selection
-     - $\epsilon$-Greedy
+     - \[$\epsilon$\]-Greedy
      - Probability Based
  - Policy Copy
 - Policy Methods 
