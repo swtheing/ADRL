@@ -16,12 +16,12 @@ In recent years, we are constantly working on the implementation of various Deep
 
 - Policy Interation
   - Policy Evaluation
-      - Getting batch data
-      - Policy set
-      - Getting reward and related infomation
-      - Features from a new episode
+   - Policy Settings
+   - Getting reward and related infomation
+   - Feature achievement from a new episode
+   - Data Input
   - Policy Improvement
-      - Generation of a new Policy 
+   - Generation of a new Policy 
 - Policy Base
  - Action Selection
      - ε-Greedy
@@ -32,13 +32,16 @@ In recent years, we are constantly working on the implementation of various Deep
  - DDQN
  - Monte-Carlo Q-Learning
  - Monte-Carlo Policy Gradient
+ - Actor-Critic
+ - DPS
+ - waiting more
 - Data Generatior
  - Environment Base
      - Reset
      - Step
 - Implementation of a Game
- - Atari
- - FrozenLake
+ - Atari Like
+ - FrozenLake Like
 - Model
  - Model base
      - Training
