@@ -34,7 +34,7 @@ In recent years, we are constantly working on the implementation of various Deep
  - Monte-Carlo Policy Gradient
  - Actor-Critic
  - DPS
- - waiting more
+ - Waiting More
 - Data Generatior
  - Environment Base
      - Reset
@@ -56,5 +56,8 @@ In recent years, we are constantly working on the implementation of various Deep
      - Linear
      - GAN
      - AutoDecoder
+     - Waiting More
 - Configuration
+ - Settings of hyper-parameters
+
 
