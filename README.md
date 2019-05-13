@@ -27,14 +27,13 @@ In recent years, we are constantly working on the implementation of various Deep
     - ε-Greedy
     - Probability Based
   - Policy Copy
-- Policy Methods 
+- Policy Methods (waiting for more)
   - DQN
   - DDQN
   - Monte-Carlo Q-Learning
   - Monte-Carlo Policy Gradient
   - Actor-Critic
   - DPS
-  - Waiting More
 - Data Generatior
   - Environment Base
      - Reset
@@ -50,13 +49,12 @@ In recent years, we are constantly working on the implementation of various Deep
     - Assign
     - Model Restore
     - Model Save
-  - Model Implementation
+  - Model Implementation (waiting for more)
     - MLP
     - CNN
     - Linear
     - GAN
     - AutoDecoder
-    - Waiting More
 - Configuration
   - Settings of hyper-parameters
 
