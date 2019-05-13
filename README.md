@@ -23,41 +23,41 @@ In recent years, we are constantly working on the implementation of various Deep
   - Policy Improvement
    - Generation of a new Policy 
 - Policy Base
- - Action Selection
-     - ε-Greedy
-     - Probability Based
- - Policy Copy
+  - Action Selection
+   - ε-Greedy
+   - Probability Based
+  - Policy Copy
 - Policy Methods 
- - DQN
- - DDQN
- - Monte-Carlo Q-Learning
- - Monte-Carlo Policy Gradient
- - Actor-Critic
- - DPS
- - Waiting More
+  - DQN
+  - DDQN
+  - Monte-Carlo Q-Learning
+  - Monte-Carlo Policy Gradient
+  - Actor-Critic
+  - DPS
+  - Waiting More
 - Data Generatior
- - Environment Base
-     - Reset
-     - Step
+  - Environment Base
+   - Reset
+   - Step
 - Implementation of a Game
- - Atari Like
- - FrozenLake Like
+  - Atari Like
+  - FrozenLake Like
 - Model
- - Model base
-     - Training
-     - Testing
-     - Getting parameters
-     - Assign
-     - Model Restore
-     - Model Save
- - Model Implementation
-     - MLP
-     - CNN
-     - Linear
-     - GAN
-     - AutoDecoder
-     - Waiting More
+  - Model base
+   - Training
+   - Testing
+   - Getting parameters
+   - Assign
+   - Model Restore
+   - Model Save
+  - Model Implementation
+   - MLP
+   - CNN
+   - Linear
+   - GAN
+   - AutoDecoder
+   - Waiting More
 - Configuration
- - Settings of hyper-parameters
+  - Settings of hyper-parameters
 
 
