@@ -14,10 +14,16 @@ if __name__ == "__main__":
         game = "env_trajectory"
         env = env_trajectory(game, config)
         rand = Random(config, game, env)
-        rand.run_test(config.replay_match * config.max_step)
+        for i in range(150):
+            reward, ave_pending_time, ave_fare_amount = rand.run_test(config.replay_match * config.max_step)
+            print "FINAL_RES:\titer:%s\tave_reward:%s\tave_pending_time:%s\tave_fare_amount:%s" \
+                % (i, reward, ave_pending_time, ave_fare_amount)
     elif sys.argv[1] == "GREEDY":
         config = Greedy_config()
         game = "env_trajectory"
         env = env_trajectory(game, config)
         greedy = Greedy(config, game, env)
-        greedy.run_test(config.replay_match * config.max_step)
+        for i in range(150):
+            reward, ave_pending_time, ave_fare_amount = greedy.run_test(config.replay_match * config.max_step)
+            print "FINAL_RES:\titer:%s\tave_reward:%s\tave_pending_time:%s\tave_fare_amount:%s" \
+                % (i, reward, ave_pending_time, ave_fare_amount)

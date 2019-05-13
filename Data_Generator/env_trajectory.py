@@ -79,14 +79,18 @@ class env_trajectory(env):
             self.simulator.trajector.speed_tuner(self.config.default_ave_speed, self.inner_step)
         else:
             self.simulator.trajector.set_ave_speed(self.config.default_ave_speed)
+        #self.simulator.trajector.set_ave_speed(self.config.default_ave_speed)
         print "ave speed: %s" % self.simulator.trajector.ave_speed
 
     def task_sampling(self):
         if self.config.env_var:
-            self.task_samples = self.task_generator.task_sampling_poisson(self.inner_step, self.episode_task_num)
+            self.task_generator.set_poisson_distribution(self.config.poisson_lamda, self.config.poisson_episode_num)
+            self.task_samples = self.task_generator.task_sampling_poisson( \
+                    self.inner_step, self.episode_task_num, self.config.max_task_size)
         else:
             self.task_samples = self.task_generator.task_sampling_default(self.episode_task_num)
             #self.task_samples = self.task_generator.task_sampling_random(self.episode_task_num)
+        #self.task_samples = self.task_generator.task_sampling_default(self.episode_task_num)
         print "task sampling... new task num: %d" % len(self.task_samples)
 
     def render(self):
@@ -98,7 +102,7 @@ class env_trajectory(env):
         self.speed_tune()
         self.task_sampling()
         self.simulator.update_state(self.task_samples, actions)
-        self.simulator.output_state(self.config.log_file_path, self.inner_step)
+        #self.simulator.output_state(self.config.log_file_path, self.inner_step)
         done = False
         if self.inner_step == self.config.max_step:
             done = True
@@ -108,18 +112,18 @@ class env_trajectory(env):
     def step(self, actions_pid_list, is_test=False):
         # init
         self.inner_step += 1
-        print "## INNER SETP:%s" % self.inner_step
+        print "INNER SETP:%s" % self.inner_step
         reward = 0
         done = False
         #actions = [action]
-        print "## random action:",
+        print "ACTION:",
         print actions_pid_list
         self.speed_tune()
         self.task_sampling()
         actions = self.pre_process_action(actions_pid_list)
         self.simulator.update_state(self.task_samples, actions)
         
-        ###rewarding
+        ### rewarding
         #print self.simulator.reward
         dup_simulator = copy.deepcopy(self.simulator)
         is_finished = dup_simulator.update_state([], [])
@@ -130,24 +134,59 @@ class env_trajectory(env):
                 print "rewarding while overflow"
                 break
             is_finished = dup_simulator.update_state([], [])
-            #dup_simulator.output_state(self.config.log_file_path, self.inner_step)
-        self.simulator.final_reward = dup_simulator.reward
-        del dup_simulator
+        #self.simulator.output_state(self.config.log_file_path, self.inner_step)
 
-        self.simulator.output_state(self.config.log_file_path, self.inner_step)
+        # get feature
         self.simulator.new_feature = self.pre_process_feature()
         
+        # dup reward
+        self.simulator.final_reward = dup_simulator.reward
+
         # return result
+        info = [0.0, 0.0, 0.0, 0.0, 0.0]
         if self.inner_step == self.config.max_step:
             done = True
             reward = self.simulator.final_reward
         else:
             reward = 0
-        info = None
 
+        # DONE
         if done:
-            print "## EPISODE FINAL_REWARD: %s" % reward
+            # self.simulator.pending_time = dup_simulator.pending_time
+            # self.simulator.total_fare_amount = dup_simulator.total_fare_amount
+            self.simulator.task_pending_time = copy.deepcopy(dup_simulator.task_pending_time)
+            self.simulator.participant_fare = copy.deepcopy(dup_simulator.participant_fare)
+            self.simulator.finished_task_num = dup_simulator.finished_task_num
+            # if self.simulator.finished_task_num > 0:
+            #     ave_pending_time = self.simulator.pending_time/self.simulator.finished_task_num
+            # else:
+            #     ave_pending_time = 0.0
+            # ave_fare_amount = self.simulator.total_fare_amount/len(self.simulator.participants)
+            # info = [ave_pending_time, ave_fare_amount]
 
+            # print "EPISODE_REWARD:%s\tPENDING_TIME:%s\tFARE_AMOUNT:%s\tTOTAL_PENDING_TIME:%s\tFINISHED_TASK:%s\tTOTAL_FARE:%s\tPAR_NUM:%s" \
+            #     % (reward, ave_pending_time, ave_fare_amount,\
+            #         self.simulator.pending_time, self.simulator.finished_task_num, \
+            #         self.simulator.total_fare_amount, len(self.simulator.participants))
+
+            task_time_cost = []
+            par_fare_amount = []
+            for tid in self.simulator.task_pending_time:
+                #print "TASK %s,%s" % (tid, self.simulator.task_pending_time[tid])
+                task_time_cost.append(self.simulator.task_pending_time[tid])
+            for pid in self.simulator.participant_fare:
+                #print "PAR %s,%s" % (pid, self.simulator.participant_fare[pid])
+                par_fare_amount.append(self.simulator.participant_fare[pid])
+            mean_time_cost = np.mean(task_time_cost)
+            std_time_cost = np.std(task_time_cost)
+            mean_fare_amount = np.mean(par_fare_amount)
+            std_fare_amount = np.std(par_fare_amount)
+            info = [mean_time_cost, std_time_cost, mean_fare_amount, std_fare_amount, self.simulator.finished_task_num]
+            print "EPISODE_REWARD:%s\tFINISHED_NUM:%s\tTIME_MEAN:%s\tTIME_STD:%s\tFARE_MEAN:%s\tFARE_STD:%s" \
+                % (reward, self.simulator.finished_task_num, mean_time_cost, \
+                    std_time_cost, mean_fare_amount, std_fare_amount)
+
+        del dup_simulator
         if is_test:
             return self.simulator, reward, done, info
         else:

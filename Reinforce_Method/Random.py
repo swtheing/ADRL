@@ -17,9 +17,9 @@ class Random():
 
     def run_test(self, total_step, pre_process=True, is_test=True):
         if pre_process and is_test:
-            self.pre_process_test(total_step, is_test)
+            return self.pre_process_test(total_step, is_test)
         else:
-            self.run_test_raw(total_step)
+            return self.run_test_raw(total_step)
 
     # def run_test_raw(self, total_step):
     #     total_reward = 0.0
@@ -64,6 +64,8 @@ class Random():
     def pre_process_test(self, total_step, is_test=True):
         total_reward = 0.0
         total_episode = 0
+        total_pending_time = 0.0
+        total_fare_amount = 0.0
         max_reward = 0.0
         min_reward = 99999999.0
         observation = self.env.reset(True)
@@ -122,10 +124,13 @@ class Random():
                 action_idlist.append(available_pid_list[0])
             """
             new_observation, reward, done, info = self.env.step(action_idlist, is_test)
+            mean_time_cost, std_time_cost, mean_fare_amount, std_fare_amount, finished_task_num = info
             observation = new_observation
             if done:
                 total_episode += 1
                 total_reward += reward
+                total_pending_time += mean_time_cost
+                total_fare_amount += mean_fare_amount
                 if reward > max_reward:
                     max_reward = reward
                 if reward < min_reward:
@@ -143,4 +148,5 @@ class Random():
             print "min_reward: %s" % (min_reward)
         else:
             print "None episode finished"
+        return ave_reward, total_pending_time/total_episode, total_fare_amount/total_episode
 

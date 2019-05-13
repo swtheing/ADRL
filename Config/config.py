@@ -17,7 +17,7 @@ class Random_config(object):
 
     # distribution
     env_var = True
-    poisson_lamda = 8
+    poisson_lamda = 4
     poisson_episode_num = 40
     normal_mu = 0
     normal_sigma = 0.3
@@ -42,7 +42,7 @@ class Traffic_config(object):
     par_feature_size = 15
     hidden_size = 100
     dropout_prob = 0.2
-    
+    multi_task = False 
 
     # distribution
     env_var = True
@@ -100,7 +100,7 @@ class Greedy_config(object):
 
     # distribution
     env_var = True
-    poisson_lamda = 8
+    poisson_lamda = 4
     poisson_episode_num = 40
     normal_mu = 0
     normal_sigma = 0.3
