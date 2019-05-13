@@ -3,13 +3,13 @@ A Deep Reinforcement Learning Suite
 
 ## An Overview of The **DRL** Suite 
 
-We are constantly working on the implementation of Deep Reinforcement Learning Method in recent years, following the excellent research achievements from both industry and academic circles as shown in the diagram below.<br>
+In recent years, we are constantly working on the implementation of various Deep Reinforcement Learning Methods, following the excellent research achievements from both industry and academic circles as shown in the diagram below.<br>
 
 <div align=center><img src="https://github.com/emailhxn/Deep-Reinforcement-Learning/blob/master/img/ReinforcementLearningMethod.png" width = "1000" height = "360"/></div>
 <div align=center>An overview of Deep Reinforcement Learning Methods</div>
 
 <br>
-*Welcome to STAR and FORK our code! More implementations of DRL Methods will be updated continuously!*
+#### Welcome to STAR, FORK or SHARE our code! More implementations of DRL Methods will be updated continuously!
 <br>
 
 ## A Brief CodeTree for Reinforcement Suite
