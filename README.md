@@ -17,8 +17,8 @@ In recent years, we are constantly working on the implementation of various Deep
 - Policy Interation
   - Policy Evaluation
     - Policy Settings
-    - Getting reward and related infomation
-    - Feature achievement from a new episode
+    - Reward Achievement and getting Related Infomation
+    - Feature Achievement from a new episode
     - Data Input
   - Policy Improvement
     - Generation of a new Policy 
@@ -45,8 +45,8 @@ In recent years, we are constantly working on the implementation of various Deep
   - Model base
     - Training
     - Testing
-    - Getting parameters
-    - Assign
+    - Parameter Achievement
+    - Parameter Assignment
     - Model Restore
     - Model Save
   - Model Implementation (waiting for more)
