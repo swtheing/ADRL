@@ -9,7 +9,7 @@ In recent years, we are constantly working on the implementation of various Deep
 <div align=center>An overview of Deep Reinforcement Learning Methods</div>
 
 <br></br>
-*Welcome to STAR, FORK or SHARE our code! More implementations of DRL Methods will be updated continuously!*
+*We are applying ourself to developing an efficient, flexible and practical machine learning suite to share with Deep Learning researchers. Welcome to STAR, FORK or SHARE our code! More implementations of DRL Methods will be updated continuously!*
 <br></br>
 
 ## A Brief CodeTree for Reinforcement Suite
