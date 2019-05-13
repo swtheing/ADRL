@@ -28,8 +28,8 @@ In recent years, we are constantly working on the implementation of various Deep
     - Probability Based
   - Policy Copy
 - Policy Methods (waiting for more)
-  - DQN
-  - DDQN
+  - Deep Q-Learning
+  - Double DQN
   - Monte-Carlo Q-Learning
   - Monte-Carlo Policy Gradient
   - Actor-Critic
