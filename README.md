@@ -22,7 +22,7 @@ In recent years, we are constantly working on the implementation of various Deep
     - Data Input
   - Policy Improvement
     - Generation of a new Policy 
-- Policy Base
+- Policy Base (comming for TensorFlow based version)
   - Action Selection
     - ε-Greedy
     - Probability Based
@@ -33,7 +33,7 @@ In recent years, we are constantly working on the implementation of various Deep
   - Monte-Carlo Q-Learning
   - Monte-Carlo Policy Gradient
   - Actor-Critic
-  - DPS
+  - Direct Policy Search (DPS)
 - Data Generatior
   - Environment Base
      - Reset
