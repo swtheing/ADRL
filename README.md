@@ -37,8 +37,8 @@ In recent years, we are constantly working on the implementation of various Deep
   - Waiting More
 - Data Generatior
   - Environment Base
-   - Reset
-   - Step
+     - Reset
+     - Step
 - Implementation of a Game
   - Atari Like
   - FrozenLake Like
