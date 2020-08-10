@@ -255,10 +255,10 @@ class DataLoader():
         assert(len(par_x) == len(pos_par))
 
         for i in range(len(self.raw_data)):
-            pos = [float(task_x1[i]), float(task_y1[i]), float(task_x2[i]), float(task_y2[i])]
+            pos = [float(task_x1[i])/10, float(task_y1[i])/10, float(task_x2[i])/10, float(task_y2[i])/10]
             self.raw_data[i][1] = pos
         for i in range(len(self.trajectory_data)):
-            pos = [float(par_x[i]), float(par_y[i])]
+            pos = [float(par_x[i])/10, float(par_y[i])/10]
             self.trajectory_data[i][2] = pos
 
 

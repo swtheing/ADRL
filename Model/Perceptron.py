@@ -12,6 +12,7 @@ class Perceptron(model):
         self.decay = config.decay
         self.learning_rate = config.learning_rate
         self.loss_name = loss_name
+        self.dropout_prob = config.dropout_prob
         self.batch_size = config.batch_size
         self.reuse = reuse
         print reuse
@@ -56,6 +57,7 @@ class Perceptron(model):
         self.tf_action = tf.placeholder(dtype=tf.float32, shape=[None, self.action_size], name="tf_action")
         self.tf_epr = tf.placeholder(dtype=tf.float32, shape=[None], name="tf_epr")
         self.tf_Q = tf.placeholder(dtype=tf.float32, shape=[None], name="tf_q")
+        self.is_training = tf.placeholder(dtype=tf.bool)
 
     def _create_w(self):
         with tf.name_scope("data"):
@@ -75,7 +77,9 @@ class Perceptron(model):
     def _forward(self, x):  # x ~ [1,D]
         self.h = tf.matmul(x, self.W1)
         h = tf.nn.relu(self.h)
+        #h = tf.layers.batch_normalization(h, training = self.is_training) 
         logp = tf.matmul(h, self.W2)
+        #logp = tf.layers.dropout(logp, rate = self.dropout_prob, training = self.is_training) 
         return logp
 
     def _loss_f(self, loss_name):
@@ -92,20 +96,22 @@ class Perceptron(model):
 
     def test_model(self, data):
         features = self.feature_extract(data)
-        feed = {self.tf_x : features}
+        feed = {self.tf_x : features, self.is_training : False}
         p, Q= self.sess.run([self.p, self.logit], feed)
         return p, Q
 
 
-    def train_model(self, data, action, reward, value, epoch, direct = False):
+    def train_model(self, data, action, reward, value, next_obs, epoch, direct = False):
         if self.direct:
             update_1, update_2 = self.sess.run([self.update_1, self.update_2])
         else:
+            print "value"
+            print value
             features = self.feature_extract(data)
             sparse_action = np.zeros((self.batch_size, self.action_size))
             for i in range(self.batch_size):
-                sparse_action[i][action[i]] = 1
-            feed = {self.tf_x : features, self.tf_action : sparse_action, self.tf_epr: reward, self.tf_Q: value}
+                sparse_action[i][action[i] - 1] = 1
+            feed = {self.tf_x : features, self.tf_action : sparse_action, self.tf_epr: reward, self.tf_Q: value,                    self.is_training : True}
             _, loss_val = self.sess.run([self.train_op, self.loss], feed)
             if epoch % 10 == 0:
                 print "epoch: {} loss: {}".format(epoch, loss_val)

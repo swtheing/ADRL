@@ -1,15 +1,15 @@
 import numpy as np
 import tensorflow as tf
 class T2T_Model():
-    def __init__(self, vocab_size, num_units, dropout_rate, num_block, is_training
-                , num_heads, hidden_units):
+    def __init__(self, vocab_size, num_units, dropout_rate, num_block
+                , num_heads, hidden_units, is_training):
          self.vocab_size = vocab_size
          self.num_units = num_units
          self.dropout_rate = dropout_rate
          self.num_block = num_block
-         self.is_training = is_training
          self.num_heads = num_heads
          self.hidden_units = hidden_units
+         self.is_training = is_training
 
     def encoder(self, inputs, emb = True, causality = False, zero_pad = True, scale = True, scope = "encoder", reuse = None):
         with tf.variable_scope(scope, reuse = reuse):
@@ -87,6 +87,7 @@ class T2T_Model():
                                              training = self.is_training)
             else:
                 self.dec = inputs
+            pointer_list = []
             for i in range(self.num_block):
                 with tf.variable_scope("num_blocks_{}".format(i)):
                     self.dec, _ = self.multihead_attention(queries=self.dec,
@@ -109,6 +110,8 @@ class T2T_Model():
                                                         scope = "dec_self_attention"
                                                         )
                     self.dec, _ = self.feedforward(self.dec, num_units=[4*self.num_units, self.num_units])
+                    pointer_list.append(pointer)
+        pointer = tf.reduce_max(tf.stack(pointer_list), axis = 0)
 
         return self.dec, pointer
 
@@ -206,18 +209,18 @@ class T2T_Model():
 
             # Split and concat
                 Q_ = tf.concat(tf.split(Q, num_heads, axis=2), axis=0) # (h*N, T_q, C/h)
-                Q_ = tf.Print(Q_, [Q_], summarize = 20, message = scope + " Q_")
+                #Q_ = tf.Print(Q_, [Q_], summarize = 20, message = scope + " Q_")
                 K_ = tf.concat(tf.split(K, num_heads, axis=2), axis=0) # (h*N, T_k, C/h)
-                K_ = tf.Print(K_, [K_], summarize = 20, message = scope + " K_")
+                #K_ = tf.Print(K_, [K_], summarize = 20, message = scope + " K_")
                 V_ = tf.concat(tf.split(V, num_heads, axis=2), axis=0) # (h*N, T_k, C/h)
 
             # Multiplication
                 outputs = tf.matmul(Q_, tf.transpose(K_, [0, 2, 1])) # (h*N, T_q, T_k)
-                outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
+                #outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
 
             # Scale
                 outputs = outputs / (K_.get_shape().as_list()[-1] ** 0.5)
-                outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
+                #outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
                  
             # Key Masking
                 if key_mask:
@@ -225,11 +228,11 @@ class T2T_Model():
                     #key_masks = tf.Print(key_masks, [key_masks], summarize = 20)
                     key_masks = tf.tile(key_masks, [num_heads, 1]) # (h*N, T_k)
                     key_masks = tf.tile(tf.expand_dims(key_masks, 1), [1, tf.shape(queries)[1], 1]) # (h*N, T_q, T_k)
-                    key_masks = tf.Print(key_masks, [key_masks], summarize = 20, message = scope + " key_mask")
+                    #key_masks = tf.Print(key_masks, [key_masks], summarize = 20, message = scope + " key_mask")
                     #key_masks = tf.Print(key_masks, [key_masks], summarize = 20)
                     paddings = tf.ones_like(outputs)*(-2**32+1)
                     outputs = tf.where(tf.equal(key_masks, 0), paddings, outputs) # (h*N, T_q, T_k)
-                    outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
+                    #outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
 
             # Causality = Future blinding
                 if causality:
@@ -250,15 +253,15 @@ class T2T_Model():
                     #key_masks = tf.Print(key_masks, [key_masks], summarize = 20)
                     paddings = tf.ones_like(outputs)*(-2**32+1)
                     outputs = tf.where(tf.equal(query_masks, 0), paddings, outputs) # (h*N, T_q, T_k)
-                    outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
+                    #outputs = tf.Print(outputs, [outputs], summarize = 20, message = scope + " output")
           
                 #key_masks = tf.Print(key_masks, [key_masks], summarize = 20)
             # Activation
+                outputs = tf.nn.softmax(outputs) # (h*N, T_q, T_k)
                 attent_vec = tf.stack(tf.split(outputs, num_heads, axis=0))
                 attent_vec = tf.reduce_max(attent_vec, axis = 0)
                 attent_vec = tf.layers.dropout(attent_vec, rate=dropout_rate, training=is_training)
                 #print attent_vec.get_shape().as_list()
-                outputs = tf.nn.softmax(outputs) # (h*N, T_q, T_k)
                 #attent_vec = tf.split(attent_vec, num_heads, axis=0)[0] # (N, T_q, C)
 
             # Query Masking

@@ -24,12 +24,16 @@ class DQN(Reinforce_Suite):
         self.replay_ns = []
         self.debug = config.debug
         self.viewer = None
-        
+        self.sample_len = 0
+
+    def Update_Sample_Len(self):
+        self.sample_len = len(self.replay_obs)
+
     def Gen_Batch_Data(self, policy, epoch_num):
         batchs = []
         state_dic = {}
         for epoch in range(epoch_num):
-            samples = random.sample(range(len(self.replay_obs)), self.model.batch_size)
+            samples = random.sample(range(self.sample_len), self.model.batch_size)
             samples_obs = [self.replay_obs[i] for i in samples]
             samples_act = [self.replay_act[i] - 1 for i in samples]
             #samples_next =[self.replay_next[i] for i in samples]
@@ -47,7 +51,7 @@ class DQN(Reinforce_Suite):
                         print "observe_state : {}, act : {}, Old Q : {}, New Q : {}".format(self.replay_s[i], self.replay_act[i] - 1, Q_obs, self.replay_rew[i] + self.gamma * Q)
                         state_dic[self.replay_s[i]] = Q_s
                     samples_Q.append(self.replay_rew[i] + self.gamma * Q)
-            tup = (samples_obs, samples_act, samples_epr, samples_Q)
+            tup = (samples_obs, samples_act, samples_epr, samples_Q, None)
             batchs.append(tup)
         if self.debug:
             for key in state_dic.keys():
@@ -136,5 +140,5 @@ class DQN(Reinforce_Suite):
         #print len(self.replay_rew)
         #print len(self.replay_next)
         #print self.replay_Q
-        samples_obs, samples_act, samples_epr, samples_Q = train_data
-        policy.model.train_model(samples_obs, samples_act, samples_epr, samples_Q, train_epoch)
+        samples_obs, samples_act, samples_epr, samples_Q, next_obs = train_data
+        policy.model.train_model(samples_obs, samples_act, samples_epr, samples_Q, next_obs, train_epoch)

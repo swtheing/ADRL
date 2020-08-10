@@ -1,6 +1,0 @@
-model_checkpoint_path: "Cnn.ckpt-1350"
-all_model_checkpoint_paths: "Cnn.ckpt-1150"
-all_model_checkpoint_paths: "Cnn.ckpt-1200"
-all_model_checkpoint_paths: "Cnn.ckpt-1250"
-all_model_checkpoint_paths: "Cnn.ckpt-1300"
-all_model_checkpoint_paths: "Cnn.ckpt-1350"

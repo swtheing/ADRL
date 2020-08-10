@@ -1,6 +1,0 @@
-model_checkpoint_path: "preceptron.ckpt-25650"
-all_model_checkpoint_paths: "preceptron.ckpt-25450"
-all_model_checkpoint_paths: "preceptron.ckpt-25500"
-all_model_checkpoint_paths: "preceptron.ckpt-25550"
-all_model_checkpoint_paths: "preceptron.ckpt-25600"
-all_model_checkpoint_paths: "preceptron.ckpt-25650"

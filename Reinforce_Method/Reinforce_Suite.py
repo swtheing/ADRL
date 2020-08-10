@@ -1,5 +1,6 @@
 import sys
 import copy
+import numpy as np
 from Policy import *
 
 class Reinforce_Suite():
@@ -29,13 +30,16 @@ class Reinforce_Suite():
         raise NotImplementedError("Abstract Method")
 
     def Policy_Evaluation(self, policy):
-        mean_reward, max_reward, min_reward = self.Get_Data(policy)
-        return mean_reward, max_reward, min_reward
+        mean_reward, max_reward, min_reward, raw_reward, fare_std, time_std, disc_mean, fare_mean = self.Get_Data(policy)
+        return mean_reward, max_reward, min_reward, raw_reward, fare_std, time_std, disc_mean, fare_mean
 
     def Gen_Batch_Data(self, policy, epoch_num):
         raise NotImplementedError("Abstract Method")
 
-    def Policy_Iteration(self):
+    def Update_Sample_Len(self):
+        return None
+
+    def Policy_Iteration(self, inner_loop = 1):
         iter_begin = 0
         #iter_begin = self.policy_reserve.model.restore_model(self.save_path)
         for iter in range(iter_begin, self.epoch):
@@ -48,16 +52,33 @@ class Reinforce_Suite():
             #value = self.policy_reserve.model.get_params()
             #print self.policy_reserve.model.sess.run(value[-1])
             reward = 0
+            raw_rewards = []
+            fare_std_rewards = []
+            time_std_rewards = []
+            dis_c_means = []
+            fare_means = []
             for epoch in range(self.eval_epoch):
-                mean_reward, max_reward, min_reward = self.Policy_Evaluation(self.policy_reserve)
-                print "epoch {}, eval max_reward: {}, min_reward: {}".format(epoch, max_reward, min_reward)
+                mean_reward, max_reward, min_reward, raw_reward, fare_std, time_std, disc_mean, fare_mean = self.Policy_Evaluation(self.policy_reserve)
+                print "epoch {}, eval max_reward: {}, min_reward: {}, raw_reward: {}, f_std_reward: {}, t_std_reward: {}, dis_cost_mean: {}, fare_mean: {}".format(epoch, \
+                    max_reward, min_reward, raw_reward, fare_std, time_std, disc_mean, fare_mean)
                 reward += mean_reward
-            print "iter {} eval reward: {}".format(iter, reward / self.eval_epoch)
+                raw_rewards.append(raw_reward)
+                fare_std_rewards.append(fare_std)
+                time_std_rewards.append(time_std)
+                dis_c_means.append(disc_mean)
+                fare_means.append(fare_mean)
+            print "iter {} eval reward: {}, raw_reward: {}, f_std_reward: {}, t_std_reward: {}, dis_cost_mean: {}, fare_mean: {}".format(iter, reward / self.eval_epoch, \
+                np.mean(raw_reward), np.mean(fare_std), np.mean(time_std), np.mean(dis_c_means), np.mean(fare_means))
             if iter < self.explore_iter:
                 continue
-            batches = self.Gen_Batch_Data(self.policy_predict, self.train_epoch)
-            for epoch in range(self.train_epoch):
-                self.Train_Data(self.policy_reserve, epoch, batches[epoch])
+            if iter > 200:
+                break
+            
+            self.Update_Sample_Len()
+            for inner in range(inner_loop):
+                batches = self.Gen_Batch_Data(self.policy_predict, self.train_epoch)
+                for epoch in range(self.train_epoch):
+                    self.Train_Data(self.policy_reserve, epoch, batches[epoch])
             #W1, W2 = self.policy_predict.model._get_params()
             #print W2
             #W1, W2 = self.policy_reserve.model._get_params()

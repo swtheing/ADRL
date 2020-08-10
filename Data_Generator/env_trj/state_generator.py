@@ -10,6 +10,8 @@ import math
 from math import radians, cos, sin, asin, sqrt
 import numpy as np
 
+alpha = 0.6
+
 class TaskState(IntEnum):
     pending = 0
     picking = 1
@@ -85,8 +87,22 @@ class Trajectory():
 
     def yeild_rand_position(self):
         #random.shuffle(self.trajectories)
-        index = random.randint(0, self.trajectories.size() - 1)
+        index = random.randint(0, len(self.trajectories) - 1)
         return self.trajectories[index]
+
+    def fix_position(self, pos_number):
+        total_num = len(self.trajectories)
+        rest_sample_num = pos_samples_num - total_num
+        if rest_sample_num <= 0:
+            pos_samples = self.trajectories[:pos_samples_num]
+        else:
+            while rest_sample_num > 0:
+                pos_samples += self.trajectories
+                if rest_sample_num <= total_num:
+                    pos_samples += self.trajectories[:rest_sample_num]
+                    break
+                rest_sample_num = rest_sample_num - total_num
+        return pos_samples
 
     def get_position(self, pid):
         return self.trajectories[pid]
@@ -154,6 +170,8 @@ class StateSimulator():
         self.total_fare_amount = 0
         self.task_pending_time = dict()
         self.participant_fare = dict()
+        self.participant_dis_cost = dict()
+        self.participant_finish_task = dict()
         self.reward = 0.0
         self.final_reward = 0.0
         self.finished_task_num = 0
@@ -172,6 +190,7 @@ class StateSimulator():
         self.total_fare_amount = 0
         self.task_pending_time = dict()
         self.participant_fare = dict()
+        self.participant_dis_cost = dict()
         self.finished_task_num = 0
         self.final_reward = 0.0
         self.new_task_list = []
@@ -179,13 +198,19 @@ class StateSimulator():
         self.new_feature = []
         self.exe_actions = []
 
-    def init_participants(self, participants_num=10):
+    def init_participants(self, energy, participants_num=10):
+        #assert len(self.trajector.trajectories) >= participants_num
+        start_pos_list = self.trajector.trajectories[:participants_num]
+        target_pos_list = self.trajector.trajectories[participants_num:]
         for pid in range(1, participants_num + 1):
             participant_id = pid
-            # start_pos = self.trajector.yeild_rand_position()
+            #print "par id %d" % pid
+            # start_pos = self.trajector.yeild_rand_position() # rand par
             # target_pos = self.trajector.yeild_rand_position()
-            start_pos = self.trajector.get_position(pid)
-            target_pos = self.trajector.get_position(pid)
+            start_pos = start_pos_list[pid - 1] # fix par
+            target_pos = target_pos_list[pid - 1]
+            # start_pos = self.trajector.get_position(pid)
+            # target_pos = self.trajector.get_position(pid)
             cur_pos = start_pos
             remain_distance = self.trajector.get_distance( \
                 start_pos[0], start_pos[1], target_pos[0], target_pos[1])
@@ -193,13 +218,23 @@ class StateSimulator():
             task_id = 0
             speed = self.trajector.ave_speed
             state = ParticipantState["available"]
+            # total_task_num = 0
+            # total_time_cost = 0
+            # total_fare_amount = 0
+            #energy_save = 1.0
+            index = pid % len(energy) - 1
+            energy_save = energy[index]
             participant = [participant_id, state, task_id, \
-                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed]
+                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed, energy_save]
             self.participants[participant_id] = participant
+            self.participant_finish_task[participant_id] = 0
+            self.participant_fare[participant_id] = 0
+            self.participant_dis_cost[participant_id] = 0
 
     def free_working_participant(self, participant_id):
         participant_id, state, task_id, \
-            cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed = self.participants[participant_id]
+            cur_pos, start_pos, target_pos, \
+            remain_distance, cur_cost_dis, speed, energy_save = self.participants[participant_id]
         # target_pos = self.trajector.yeild_rand_position()
         target_pos = self.trajector.get_position(participant_id)
         cur_pos = start_pos
@@ -209,7 +244,7 @@ class StateSimulator():
         task_id = 0
         state = ParticipantState["available"]
         self.participants[participant_id] = [participant_id, state, task_id, \
-            cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed]
+            cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed, energy_save]
 
     def update_state(self, new_tasks, actions, unit_time=300):
         """
@@ -224,13 +259,15 @@ class StateSimulator():
                 and len(self.pending_actions) == 0:
             is_finished = True
         self.update_position(unit_time)
+        self.reward_compute()
         self.update_new_tasks(new_tasks)
         return is_finished
 
     def update_position(self, unit_time=300):
         for p_id in self.participants:
             p_id, state, task_id, \
-                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed = self.participants[p_id]
+                cur_pos, start_pos, target_pos, \
+                remain_distance, cur_cost_dis, speed, energy_save = self.participants[p_id]
             if state != ParticipantState["unavailable"]:
                 ave_speed = self.trajector.ave_speed
                 self.participants[p_id][8] = ave_speed
@@ -282,7 +319,7 @@ class StateSimulator():
             if not self.execution(action):
                 tmp_actions.append(action)
         self.pending_actions = tmp_actions
-        self.reward_compute()
+        #self.reward_compute()
 
     def execution(self, action):
         action_name, p_id, t_id = action
@@ -293,13 +330,14 @@ class StateSimulator():
             self.exe_actions.append(action)
             # update participant
             p_id, state, p_task_id, \
-                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed = self.participants[p_id]
+                cur_pos, start_pos, target_pos, \
+                remain_distance, cur_cost_dis, speed, energy_save = self.participants[p_id]
             state = ParticipantState["working"]
             target_pos = self.pending_schedules[t_id][4]
             start_pos = cur_pos
             remain_distance = self.trajector.get_distance(cur_pos[0], cur_pos[1], target_pos[0], target_pos[1])
             self.participants[p_id] = [p_id, state, t_id, \
-                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed]
+                cur_pos, start_pos, target_pos, remain_distance, cur_cost_dis, speed, energy_save]
             # update task
             self.running_schedules[t_id] = self.pending_schedules[t_id]
             self.running_schedules[t_id][1] = TaskState["picking"]  #update state
@@ -310,16 +348,32 @@ class StateSimulator():
 
     def reward_compute(self):
         # one step reward, no pending task
-        # reward = finish_num + pos_distance * 5 - neg_distance - waiting_time
-        # print "rewarding..."
+        # reward = finish_num + pos_distance * 2 - neg_distance - waiting_time
+        #print "rewarding..."
         for task_id in self.finished_schedules:
             task = self.finished_schedules[task_id]
             pid = task[2]
+            energy_save = self.participants[pid][9]
+            #print "@@@"
+            #print energy_save
             if task[9] == 0: # not count yet
-                fare_amount = task[10]
-                self.reward += fare_amount * 5.0  #-1.0抵消成本，+3.0计算reward
+                fare_amount = task[10] # fare = dis
                 self.finished_task_num += 1
                 self.total_fare_amount += fare_amount
+
+                self.reward += 1.0 * 0.1 # finish reward
+                #print "(p%s_t%s_finish)+%s" % (pid, task_id, "0.1"), 
+                if pid in self.participant_finish_task:
+                    self.participant_finish_task[pid] += 1
+                else:
+                    self.participant_finish_task[pid] = 1
+
+                # if energy_save == 2:
+                #     self.reward += 2
+                # energy-save-flag
+
+                self.reward += fare_amount * 2.0 * energy_save * alpha#fare reward *2
+                #print "(p%s_fare)+%s*2" % (pid, fare_amount), 
                 self.finished_schedules[task_id][9] = 1 # counted
                 if pid in self.participant_fare:
                     self.participant_fare[pid] += fare_amount
@@ -327,18 +381,21 @@ class StateSimulator():
                     self.participant_fare[pid] = fare_amount
         for pid in self.participants:
             state = self.participants[pid][1]
-            cur_cost_dis = self.participants[pid]
+            #cur_cost_dis = self.participants[pid]
             if state == ParticipantState["working"]:
-                self.reward -= self.participants[pid][7]  #1.0抵消成本
+                self.reward -= self.participants[pid][7]  #1.0抵消成本 cost distance
+                self.participant_dis_cost[pid] += self.participants[pid][7]
+                #print "(p%s_cost_dis)-%s" % (pid, self.participants[pid][7]),
         TIME_SPEND_UNIT = 0.01
         for tid in self.pending_schedules:
             self.reward -= TIME_SPEND_UNIT
-            # print "-0.01\t",
+            #print "(t%s_time)-0.01" % tid, # time cost
             self.pending_time += TIME_SPEND_UNIT
             if tid in self.task_pending_time:
                 self.task_pending_time[tid] += TIME_SPEND_UNIT
             else:
                 self.task_pending_time[tid] = TIME_SPEND_UNIT
+        #print "= %s" % self.reward
         return self.reward
 
     def update_new_tasks(self, new_tasks):
@@ -367,6 +424,7 @@ class StateSimulator():
                     recruiter_num, distance, fare_amount, reward_state, real_dis, move_dis]
             self.new_task_list.append(task)
             self.pending_schedules[task_id] = task
+            self.task_pending_time[task_id] = 0
 
     def output_state(self, log_path, step=0):
         self.output_state_schedule(log_path, step)
@@ -397,6 +455,12 @@ class StateSimulator():
             log_file.write("\n")
         log_file.write("#reward:%s\n" % self.reward)
         log_file.write("#final reward:%s\n" % self.final_reward)
+        for tid in self.task_pending_time:
+            log_file.write("TASK_time_wait %s,%s\n" % (tid, self.task_pending_time[tid]))
+        for pid in self.participant_fare:
+            log_file.write("PAR_fare %s,%s\n" % (pid, self.participant_fare[pid]))
+        for pid in self.participant_finish_task:
+            log_file.write("PAR_finish %s,%s\n" % (pid, self.participant_finish_task[pid]))
         log_file.write("\n")
         log_file.close()
 
