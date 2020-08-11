@@ -1,6 +1,7 @@
 #Off-Policy Learning and TD(1) Learining
 import random
 import time
+import numpy as np
 # from Reinforce_Suite import *
 # from Perceptron import *
 # from Cnn import *
@@ -66,8 +67,14 @@ class Random():
         total_episode = 0
         total_pending_time = 0.0
         total_fare_amount = 0.0
-        max_reward = 0.0
+        ave_reward = 0.0
+        max_reward = -99999999.0
         min_reward = 99999999.0
+        raw_rewards = []
+        fare_std_rewards = []
+        time_std_rewards = []
+        fare_means = []
+        disc_means = []
         observation = self.env.reset(True)
         for step_n in range(total_step):
             print "STEP %d" % (step_n + 1)
@@ -79,10 +86,10 @@ class Random():
             #actions = observation.pending_actions
             action_idlist = []
             actions = []
-            available_pid_list = []
-            for pid in observation.participants:
+            #available_pid_list = []
+            #for pid in observation.participants:
                 #if observation.participants[pid][1] == ParticipantState["available"]:
-                available_pid_list.append(pid)
+                #available_pid_list.append(pid)
             for task in observation.new_task_list:
                 taskid = task[0]
                 action_pid = random.randint(1, len(observation.participants)) # start from 1
@@ -124,7 +131,7 @@ class Random():
                 action_idlist.append(available_pid_list[0])
             """
             new_observation, reward, done, info = self.env.step(action_idlist, is_test)
-            mean_time_cost, std_time_cost, mean_fare_amount, std_fare_amount, finished_task_num = info
+            raw_reward, reward_fare_std, reward_time_std, mean_time_cost, std_time_cost, mean_fare_amount, std_fare_amount, finished_task_num, mean_dis_cost, std_dis_cost, mean_finish, std_finish = info
             observation = new_observation
             if done:
                 total_episode += 1
@@ -138,14 +145,20 @@ class Random():
                 print "episode: %d, reward: %s" % (total_episode, reward)
                 print "finished task %d" % (len(observation.finished_schedules))
                 observation = self.env.reset(True)
+
+                raw_rewards.append(raw_reward)
+                fare_std_rewards.append(reward_fare_std)
+                time_std_rewards.append(reward_time_std)
+                fare_means.append(mean_fare_amount)
+                disc_means.append(mean_dis_cost)
         if total_episode > 0:
             ave_reward = total_reward / total_episode
-            # print "ave_reward: %s" % (ave_reward / self.config.max_step)
-            # print "max_reward: %s" % (max_reward / self.config.max_step)
-            # print "min_reward: %s" % (min_reward / self.config.max_step)
-            print "ave_reward: %s" % (ave_reward)
-            print "max_reward: %s" % (max_reward)
-            print "min_reward: %s" % (min_reward)
+            print "random result:"
+            print "ave_reward:%s, max_reward:%s, min_reward:%s" % (ave_reward, max_reward, min_reward)
+            print "mean_raw_reward:%s, mean_fare_std_r:%s, mean_time_std_r:%s, mean_dis_cost:%s, mean_fare:%s" \
+                % (np.mean(raw_rewards), np.mean(fare_std_rewards), np.mean(time_std_rewards), np.mean(disc_means), np.mean(fare_means))
+            print "total_step:%s, total_episode:%s, total_reward:%s"\
+                % (total_step, total_episode, total_reward)
         else:
             print "None episode finished"
         return ave_reward, total_pending_time/total_episode, total_fare_amount/total_episode

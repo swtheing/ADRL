@@ -25,13 +25,20 @@ class env_trajectory(env):
             self.config.task_data_path,self.config.trajectory_data_path)
         self.data_loader.load_task_static() # 读取yellow 数据
         self.data_loader.get_trajectories() # 读取uber数据
-        #self.data_loader.overall_position_normalization()
+        self.data_loader.overall_position_normalization()
         self.data_loader.get_merge_task(self.config.aim_day_num) 
         print "task generation"
         self.task_generator = TaskGenerator()
         self.task_generator.gen_task_list(self.data_loader.zip_data) # 按分布采样生成task列表
         self.task_generator.set_poisson_distribution(self.config.poisson_lamda, self.config.poisson_episode_num)
         print "trajectory sampling size: %d" % len(self.data_loader.trajectory_data)
+
+        # energy
+        self.energy = [3, 2, 2, 5, 1, 7, 5, 8, 9, 4, 6, 10, 6, 4, 7, 3, 1, 8, 4, 6, 10, 3, 6, 4, 3, 6, 2, 2, 10, 1, 1, 1, 2, 4, 9, 6, 5, 3, 4, 7, 8, 2, 6, 1, 8, 6, 2, 9, 10, 9, 5, 2, 4, 1, 9, 1, 1, 3, 1, 4, 4, 8, 9, 9, 5, 8, 10, 6, 2, 8, 4, 2, 8, 4, 3, 1, 10, 2, 1, 5, 6, 6, 10, 2, 9, 6, 2, 5, 4, 10, 4, 1, 9, 9, 6, 5, 10, 7, 10, 7]
+        # for i in range(self.config.participant_num):
+        #     energy_save = random.randint(1, 10)
+        #     self.energy.append(energy_save)
+
         # new simulator
         self.simulator = StateSimulator()
         # reset
@@ -63,7 +70,7 @@ class env_trajectory(env):
 
     def preprocess(self):
         self.simulator.clear()
-        self.simulator.init_participants(self.config.participant_num) # 初始化n个taxi
+        self.simulator.init_participants(self.energy, self.config.participant_num) # 初始化n个taxi
         #print "step:0, task_num:%s" % len(task_samples)
         self.simulator.update_state(self.task_samples, [])
         self.simulator.new_feature = self.pre_process_feature()
@@ -80,7 +87,7 @@ class env_trajectory(env):
         else:
             self.simulator.trajector.set_ave_speed(self.config.default_ave_speed)
         #self.simulator.trajector.set_ave_speed(self.config.default_ave_speed)
-        print "ave speed: %s" % self.simulator.trajector.ave_speed
+        #print "ave speed: %s" % self.simulator.trajector.ave_speed
 
     def task_sampling(self):
         if self.config.env_var:
@@ -88,7 +95,15 @@ class env_trajectory(env):
             self.task_samples = self.task_generator.task_sampling_poisson( \
                     self.inner_step, self.episode_task_num, self.config.max_task_size)
         else:
-            self.task_samples = self.task_generator.task_sampling_default(self.episode_task_num)
+            # possion
+            # self.task_generator.set_poisson_distribution(self.config.poisson_lamda, self.config.poisson_episode_num)
+            # self.task_samples = self.task_generator.task_sampling_poisson( \
+            #         self.inner_step, self.episode_task_num, self.config.max_task_size)
+
+            #fix
+            self.task_samples = self.task_generator.task_sampling_fix(self.inner_step, self.episode_task_num)
+            
+            #self.task_samples = self.task_generator.task_sampling_default_rand(self.episode_task_num)
             #self.task_samples = self.task_generator.task_sampling_random(self.episode_task_num)
         #self.task_samples = self.task_generator.task_sampling_default(self.episode_task_num)
         print "task sampling... new task num: %d" % len(self.task_samples)
@@ -106,21 +121,24 @@ class env_trajectory(env):
         done = False
         if self.inner_step == self.config.max_step:
             done = True
+            reward = self.simulator.reward
+        else:
+            reward = self.simulator.reward
         info = None
-        return self.simulator, self.simulator.reward, done, info
+        return self.simulator, reward, done, info
 
     def step(self, actions_pid_list, is_test=False):
         # init
         self.inner_step += 1
-        print "INNER SETP:%s" % self.inner_step
+        print "INNER SETP:%s, last_reward:%s" % (self.inner_step, self.simulator.final_reward)
         reward = 0
         done = False
-        #actions = [action]
-        print "ACTION:",
-        print actions_pid_list
+        #print "ACTION:",
+        #print actions_pid_list
         self.speed_tune()
         self.task_sampling()
         actions = self.pre_process_action(actions_pid_list)
+        #print actions
         self.simulator.update_state(self.task_samples, actions)
         
         ### rewarding
@@ -134,7 +152,6 @@ class env_trajectory(env):
                 print "rewarding while overflow"
                 break
             is_finished = dup_simulator.update_state([], [])
-        #self.simulator.output_state(self.config.log_file_path, self.inner_step)
 
         # get feature
         self.simulator.new_feature = self.pre_process_feature()
@@ -143,7 +160,7 @@ class env_trajectory(env):
         self.simulator.final_reward = dup_simulator.reward
 
         # return result
-        info = [0.0, 0.0, 0.0, 0.0, 0.0]
+        info = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         if self.inner_step == self.config.max_step:
             done = True
             reward = self.simulator.final_reward
@@ -151,11 +168,14 @@ class env_trajectory(env):
             reward = 0
 
         # DONE
+        std_fare_amount = 0.0
         if done:
             # self.simulator.pending_time = dup_simulator.pending_time
             # self.simulator.total_fare_amount = dup_simulator.total_fare_amount
             self.simulator.task_pending_time = copy.deepcopy(dup_simulator.task_pending_time)
             self.simulator.participant_fare = copy.deepcopy(dup_simulator.participant_fare)
+            self.simulator.participant_finish_task = copy.deepcopy(dup_simulator.participant_finish_task)
+            self.simulator.participant_dis_cost = copy.deepcopy(dup_simulator.participant_dis_cost)
             self.simulator.finished_task_num = dup_simulator.finished_task_num
             # if self.simulator.finished_task_num > 0:
             #     ave_pending_time = self.simulator.pending_time/self.simulator.finished_task_num
@@ -168,24 +188,57 @@ class env_trajectory(env):
             #     % (reward, ave_pending_time, ave_fare_amount,\
             #         self.simulator.pending_time, self.simulator.finished_task_num, \
             #         self.simulator.total_fare_amount, len(self.simulator.participants))
-
-            task_time_cost = []
+            task_time_wait = []
             par_fare_amount = []
+            par_finish = []
+            par_dis_cost = []
             for tid in self.simulator.task_pending_time:
-                #print "TASK %s,%s" % (tid, self.simulator.task_pending_time[tid])
-                task_time_cost.append(self.simulator.task_pending_time[tid])
+                print "TASK_time_wait %s,%s" % (tid, self.simulator.task_pending_time[tid])
+                task_time_wait.append(self.simulator.task_pending_time[tid])
             for pid in self.simulator.participant_fare:
-                #print "PAR %s,%s" % (pid, self.simulator.participant_fare[pid])
+                print "PAR_fare %s,%s" % (pid, self.simulator.participant_fare[pid])
                 par_fare_amount.append(self.simulator.participant_fare[pid])
-            mean_time_cost = np.mean(task_time_cost)
-            std_time_cost = np.std(task_time_cost)
+            for pid in self.simulator.participant_finish_task:
+                print "PAR_finish %s,%s" % (pid, self.simulator.participant_finish_task[pid])
+                par_finish.append(self.simulator.participant_finish_task[pid])
+            for pid in self.simulator.participant_dis_cost:
+                print "PAR_dis_cost %s,%s" % (pid, self.simulator.participant_dis_cost[pid])
+                par_dis_cost.append(self.simulator.participant_dis_cost[pid])
+            
+            mean_time_wait = np.mean(task_time_wait)
+            std_time_wait = np.std(task_time_wait)
             mean_fare_amount = np.mean(par_fare_amount)
-            std_fare_amount = np.std(par_fare_amount)
-            info = [mean_time_cost, std_time_cost, mean_fare_amount, std_fare_amount, self.simulator.finished_task_num]
-            print "EPISODE_REWARD:%s\tFINISHED_NUM:%s\tTIME_MEAN:%s\tTIME_STD:%s\tFARE_MEAN:%s\tFARE_STD:%s" \
-                % (reward, self.simulator.finished_task_num, mean_time_cost, \
-                    std_time_cost, mean_fare_amount, std_fare_amount)
+            std_fare_amount = np.var(par_fare_amount)
+            mean_dis_cost = np.mean(par_dis_cost) 
+            std_dis_cost = np.std(par_dis_cost)
+            mean_finish = np.mean(par_finish)
+            std_finish = np.std(par_finish)
 
+            # fairness_n = 0.0
+            # for p_fare in par_fare_amount:
+            #     if p_fare < 0.02:
+            #         fairness_n -= 1.0
+
+            print "EPISODE_REWARD:%s\tFINISHED_NUM:%s\tTIME_MEAN:%s\tTIME_STD:%s\tFARE_MEAN:%s\tFARE_STD:%s\tDIS_MEAN:%s\tDIS_STD:%s\tFINISH_MEAN:%s\tFINISH_STD:%s" \
+                % (reward, self.simulator.finished_task_num, mean_time_wait, \
+                    std_time_wait, mean_fare_amount, std_fare_amount, mean_dis_cost, std_dis_cost, mean_finish, std_finish)
+
+            #print par_fare_amount
+            #print std_fare_amount
+            reward_fare_std = (0.1 - std_fare_amount) * len(par_fare_amount) * self.config.max_step # fare std
+            #reward_fare_std = pow(reward_fare_std, 0.5)
+            reward_time_std = (0.05 - std_time_wait) * len(task_time_wait) # time waiting std
+            reward = reward * 1.0
+            info = [reward, reward_fare_std, reward_time_std, \
+                    mean_time_wait, std_time_wait, mean_fare_amount, std_fare_amount, self.simulator.finished_task_num, \
+                    mean_dis_cost, std_dis_cost, mean_finish, std_finish]
+            print "#REWARD: R:%s, F_STD:%s, T_STD:%s" % (reward, reward_fare_std, reward_time_std)
+            reward = reward + reward_fare_std + reward_time_std
+
+        # output detail log
+        self.simulator.output_state(self.config.log_file_path, self.inner_step)
+        
+        #reward = 1 - std_fare_amount
         del dup_simulator
         if is_test:
             return self.simulator, reward, done, info
@@ -203,6 +256,14 @@ class env_trajectory(env):
             action = ["pick", action_pid, action_taskid]
             actions.append(action)
         return actions
+
+    def get_distance(self, x1, y1, x2, y2):
+        # print x1
+        # print y1
+        # print x2
+        # print y2
+        # print pow((pow((x1 - x2), 2) + pow((y1 - y2), 2)), 0.5)
+        return pow((pow((x1 - x2), 2) + pow((y1 - y2), 2)), 0.5)
 
     def pre_process_feature(self):
         tmp_par_feature = np.zeros((self.config.max_par_size, self.config.par_feature_size))
@@ -234,6 +295,7 @@ class env_trajectory(env):
             # print index
             # print len(par_feature[index])
             # print par_feature[index]
+        
 
         for index in range(len(self.simulator.new_task_list)):
             feature_list = []
@@ -256,9 +318,57 @@ class env_trajectory(env):
             # print index
             # print len(task_feature[index])
             # print task_feature[index]
-        # tmp_par_feature = par_feature[:,2:4]
-        # tmp_task_feature = task_feature[:,2:4]
-        # print tmp_par_feature
-        feature = [par_feature, task_feature]
+
+        # print par_feature
+        # print task_feature
+
+        # distance matrix
+        dis_feature = np.zeros((self.config.max_task_size, self.config.max_par_size))
+        dis_position_par = []
+        dis_position_t = []
+        for i in range(len(par_feature)):
+            p_pos_x = float(par_feature[i][4])
+            p_pos_y = float(par_feature[i][5])
+            dis_position_par.append([p_pos_x, p_pos_y])
+        for i in range(len(task_feature)):
+            t_pos_x = float(task_feature[i][4])
+            t_pos_y = float(task_feature[i][5])
+            dis_position_t.append([t_pos_x, t_pos_y])
+        # print dis_position_par
+        # print dis_position_t
+        for t in range(len(dis_position_t)):
+            for p in range(len(dis_position_par)):
+                task_state = task_feature[t][1]
+                par_state = par_feature[p][1]
+                if task_state <= 0 and par_state == 0:
+                    dis_feature[t][p] = self.get_distance(dis_position_t[t][0], dis_position_t[t][1], \
+                        dis_position_par[p][0], dis_position_par[p][1])
+        # print dis_feature
+
+        #fare matrix
+        fare_feature = np.zeros((self.config.max_task_size, self.config.max_par_size))
+        for i in range(len(task_feature)):
+            task_state = task_feature[i][1]
+            if task_state <= 0:
+                distance = self.get_distance(float(task_feature[i][4]), float(task_feature[i][5]), \
+                        float(task_feature[i][6]), float(task_feature[i][7]))
+            else:
+                distance = 0.0
+            for j in range(len(par_feature)):
+                par_state = par_feature[j][1]
+                if par_state == 0:
+                    fare_feature[i][j] = distance
+            # print "@@"
+            #     print task_state
+            #     print par_state
+        #print task_feature
+        # print fare_feature
+
+        if self.config.task_mask == 1:
+            tmp_par_feature = par_feature[:,2:4]
+            tmp_task_feature = task_feature[:,2:4]
+            feature = [tmp_par_feature, tmp_task_feature]
+        else:
+            feature = [par_feature, task_feature]
         return feature
 

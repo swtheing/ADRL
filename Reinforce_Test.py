@@ -7,6 +7,7 @@ from Reinforce_Method.DirectPolicySearch import *
 from Reinforce_Method.Policy_Generator import *
 from Reinforce_Method.ActorCritic import *
 from Reinforce_Method.MC_PG import *
+from Reinforce_Method.MC_Q import *
 from Reinforce_Method.DDQN import *
 from Config.config import *
 from Data_Generator.env_lm import *
@@ -14,7 +15,7 @@ from Data_Generator.env_atari import *
 from Data_Generator.env_toy import *
 from Data_Generator.env_test_continue import *
 if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+    os.environ["CUDA_VISIBLE_DEVICES"] = '0'
     if sys.argv[1] == "DQN_DNN":
     #DQN with DNN
         config = DQN_config()
@@ -22,7 +23,7 @@ if __name__ == "__main__":
         #env = env_atari(game, config)
         env = gym.make(game)
         DQN = DQN(config, game, env)
-        DQN.Policy_Iteration()
+        DQN.Policy_Iteration(config.inner_loop)
 
     elif sys.argv[1] == "DQN_DNN_TOY":
         config = DQN_Toy_config()
@@ -37,6 +38,13 @@ if __name__ == "__main__":
         env = env_toy("CNN")
         DQN = DQN(config, game, env)
         DQN.Policy_Iteration()
+
+    elif sys.argv[1] == "MC_Q":
+        config = MC_config()
+        game = "Pong-v0"
+        env = gym.make(game)
+        MC_Q = MC_Q(config, game, env)
+        MC_Q.Policy_Iteration()
 
     elif sys.argv[1] == "PG_CON_TOY":
         config = PG_TOY_config()

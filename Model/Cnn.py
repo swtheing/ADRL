@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from model import *
-np.set_printoptions(threshold='nan') 
+np.set_printoptions(threshold=np.inf) 
 class Cnn(model):
     def __init__(self, game_name, path, config, loss_name, attribute = "reserve", copy_model = None):
         self.feature_size = config.feature_size

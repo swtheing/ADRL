@@ -1,51 +1,25 @@
 import sys
 
-class Random_config(object):
-    # default
-    aim_day_num = 1
-    trajector_sampling_size = 100
-    default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
-
-    replay_match = 32
-    max_step = 20
-    episode_task_num = 20
-    participant_num = 10
-    max_task_size = 20
-    max_par_size = participant_num
-    task_feature_size = 15
-    par_feature_size = 15
-
-    # distribution
-    env_var = True
-    poisson_lamda = 4
-    poisson_episode_num = 40
-    normal_mu = 0
-    normal_sigma = 0.3
-    normal_episode_num = 5
-
-    log_file_path = "output/random.state.log"
-    task_data_path = "Data_Generator/env_trj/data/tasks"
-    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
-
 class Traffic_config(object):
     # default
     aim_day_num = 1
     trajector_sampling_size = 100
     default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
 
-    max_step = 20
-    episode_task_num = 10
-    participant_num = 20
-    max_task_size = 20
+    max_step = 3
+    episode_task_num = 5
+    participant_num = 10
+    max_task_size = episode_task_num
     max_par_size = participant_num
+    task_mask = 0
     task_feature_size = 15
     par_feature_size = 15
-    hidden_size = 100
+    hidden_size = 256
     dropout_prob = 0.2
-    multi_task = False 
+    multi_task = False
 
     # distribution
-    env_var = True
+    env_var = False
     poisson_lamda = 8
     poisson_episode_num = 40
     normal_mu = 0
@@ -54,11 +28,11 @@ class Traffic_config(object):
 
     task_data_path = "Data_Generator/env_trj/data/tasks"
     trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
-    log_file_path = "output/traffic.state.log.test"
+    log_file_path = "output/mc.state.log"
 
-    epoch = 1000000
-    num_block = 4
-    num_heads = 4
+    epoch = 100000
+    num_block = 8
+    num_heads = 8
     eval_epoch = 1
     train_epoch = 1
     explore_iter = 0
@@ -70,36 +44,72 @@ class Traffic_config(object):
     alpha = 0.1
     
     epsilon = 0.000015
-    learning_rate = 0.0025
-    batch_size = 32
-    replay_match = 32
+    learning_rate = 0.1
+    epp = 0.5
+    batch_size = 640
+    replay_match = 640
     replay_size = 100000
     on_policy = True
-    replay_switch = False
+    replay_switch = True
     dis_epi = 0.00
     decay = 0.96
     min_epi = 0.1
     min_epi = 0.1
+    dropout_lamda = 0.5
+    value_coffe = 0.0
+    entro_coffe = 1.0
     model = "TranPtr"
     save_path = "Params/PG/Trans_ptr.ckpt"
+
+class Random_config(object):
+    # default
+    aim_day_num = 1
+    trajector_sampling_size = 100
+    default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
+
+    replay_match = 1
+    max_step = 2
+    episode_task_num = 2
+    participant_num = 2
+    max_task_size = episode_task_num
+    max_par_size = participant_num
+    task_mask = 0
+    task_feature_size = 15
+    par_feature_size = 15
+    #dropout_lamda = 0.5
+
+    # distribution
+    env_var = False
+    poisson_lamda = 4
+    poisson_episode_num = 40
+    normal_mu = 0
+    normal_sigma = 0.3
+    normal_episode_num = 0.00005
+
+    log_file_path = "output/random.state.log"
+    task_data_path = "Data_Generator/env_trj/data/tasks"
+    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
 
 class Greedy_config(object):
     # default
     aim_day_num = 1
     trajector_sampling_size = 100
     default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
+    random_prob = 0.0
 
-    replay_match = 32
-    max_step = 20
-    episode_task_num = 20
-    participant_num = 10
-    max_task_size = 20
+    replay_match = 320
+    max_step = 2
+    episode_task_num = 2
+    participant_num = 2
+    max_task_size = episode_task_num
     max_par_size = participant_num
+    task_mask = 0
     task_feature_size = 15
     par_feature_size = 15
+    #dropout_lamda = 0.5
 
     # distribution
-    env_var = True
+    env_var = False
     poisson_lamda = 4
     poisson_episode_num = 40
     normal_mu = 0
@@ -109,6 +119,66 @@ class Greedy_config(object):
     task_data_path = "Data_Generator/env_trj/data/tasks"
     trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
     log_file_path = "output/greedy.state.log"
+
+class Worst_off_config(object):
+    # default
+    aim_day_num = 1
+    trajector_sampling_size = 100
+    default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
+    random_prob = 0.0
+
+    replay_match = 320
+    max_step = 2
+    episode_task_num = 2
+    participant_num = 2
+    max_task_size = episode_task_num
+    max_par_size = participant_num
+    task_mask = 0
+    task_feature_size = 15
+    par_feature_size = 15
+    #dropout_lamda = 0.5
+
+    # distribution
+    env_var = False
+    poisson_lamda = 4
+    poisson_episode_num = 40
+    normal_mu = 0
+    normal_sigma = 0.3
+    normal_episode_num = 5
+
+    task_data_path = "Data_Generator/env_trj/data/tasks"
+    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
+    log_file_path = "output/worstoff.state.log"
+
+class Greedy_opt_config(object):
+    # default
+    aim_day_num = 1
+    trajector_sampling_size = 100
+    default_ave_speed = 0.004 # 40 / 85.176 / 3600 * 300 
+    random_prob = 0.0
+
+    replay_match = 320
+    max_step = 1
+    episode_task_num = 1
+    participant_num = 2
+    max_task_size = 1
+    max_par_size = participant_num
+    task_mask = 0
+    task_feature_size = 15
+    par_feature_size = 15
+    #dropout_lamda = 0.5
+
+    # distribution
+    env_var = False
+    poisson_lamda = 4
+    poisson_episode_num = 40
+    normal_mu = 0
+    normal_sigma = 0.3
+    normal_episode_num = 5
+
+    task_data_path = "Data_Generator/env_trj/data/tasks"
+    trajectory_data_path = "Data_Generator/env_trj/data/trajectory"
+    log_file_path = "output/greedy_opt.state.log"
 
 class GAN_policy_config(object):
     epoch = 1000000
@@ -236,6 +306,34 @@ class PG_TOY_config(object):
     model = "Gaussian"
     delay_update = 0
     save_path = "Params/PG_Con/Gaussian.ckpt"
+
+class MC_config(object):
+    epoch = 1000000
+    eval_epoch = 1
+    train_epoch = 500
+    explore_iter = 100
+    dropout_prob = 0.5
+    episilon = 1.0
+    delay_update = 0
+    replay_file = "obs_replay/replay"
+    observe_id = 10000
+    gamma = 0.99
+    alpha = 0.1
+    feature_size = 80*80
+    hidden_size = 100
+    action_size = 3
+    epsilon = 0.000015
+    learning_rate = 0.00025
+    batch_size = 32
+    replay_match = 1
+    replay_size = 100000
+    on_policy = True
+    replay_switch = True
+    dis_epi = 0.0001
+    decay = 0.96
+    min_epi = 0.1
+    model = "DNN"
+    save_path = "Params/PG/preceptron.ckpt"
 
 class PG_config(object):
     epoch = 1000000
@@ -376,23 +474,25 @@ class DQN_Toy_config(object):
 class DQN_config(object):
     epoch = 10000000
     explore_iter = 20
+    inner_loop = 10
     eval_epoch = 1
-    train_epoch = 500
+    train_epoch = 100
     episilon = 1.0
     replay_file = "obs_replay/replay"
     observe_id = 10000
     gamma = 0.99
     model = "DNN"
     alpha = 0.1
+    debug = False
     feature_size = 80*80
     hidden_size = 100
     action_size = 3
     decay = 0.96
-    epsilon = 0.000015
-    learning_rate = 0.00025
+    epsilon = 0.0001
+    learning_rate = 0.000025
     batch_size = 32
-    replay_match = 1
-    replay_size = 100000
+    replay_match = 10
+    replay_size = 500000
     dis_epi = 0.0001
     min_epi = 0.1
     delay_update = 0

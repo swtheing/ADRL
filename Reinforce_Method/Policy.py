@@ -18,12 +18,15 @@ class Policy():
                 else:
                     prob, Q = self.model.test_model([Observe])
                     act_list = []
-                    print prob[0]
+                    #print prob[0]
                     for i in range(len(prob[0])):
+                        #max_sel:
+                        #max_act_id = np.argmax(prob[0][i]) + 1
+                        #act_list.append(max_act_id)
                         act_list.append(np.random.choice(range(prob[0][i].shape[0]), p= prob[0][i]) + 1)
-                    print "act_list:"
-                    print act_list
-                    return act_list, None, None
+                    #print "act_list:"
+                    #print act_list
+                    return act_list, Q, None
             else:
                 prob, Q = self.model.test_model([Observe])
                 max_act_id = np.argmax(Q)
